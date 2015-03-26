@@ -27,16 +27,6 @@ public class MainActivity extends ActionBarActivity {
 
       //TODO add fragment
 
-        ((EditText) findViewById(R.id.search_edittext)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_SEARCH){
-                    search(v.getText().toString());
-                    return true;
-                }
-                return false;
-            }
-        });
     }
 
 
@@ -61,9 +51,5 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void search(String query){
-        Log.e(LOG_TAG,query);
     }
 }
