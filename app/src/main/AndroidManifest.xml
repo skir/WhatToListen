@@ -23,6 +23,12 @@
             android:name=".LastFmService"
             android:exported="false" >
         </service>
+
+        <provider
+            android:authorities="com.afsj.whattolisten"
+            android:name=".data.WtlProvider"
+            android:exported="false"
+            android:syncable="true" />
     </application>
 
 </manifest>

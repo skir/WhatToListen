@@ -42,7 +42,7 @@ public class Contract {
     }
 
     public static final class ResultsEntry implements BaseColumns {
-        public static final String TABLE_NAME = "history";
+        public static final String TABLE_NAME = PATH_RESULTS;
 
         public static final String NAME = "name";
         public static final String URL = "url";

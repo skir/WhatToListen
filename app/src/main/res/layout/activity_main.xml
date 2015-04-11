@@ -14,7 +14,8 @@
         android:minHeight="?attr/actionBarSize"
         android:transitionName="actionBar"
         android:layout_marginLeft="-8dp"
-        android:layout_marginRight="-8dp">
+        android:layout_marginRight="-8dp"
+        android:layout_marginTop="-8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,10 +25,12 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:id="@+id/editText"
+                android:id="@+id/searchQuery"
                 android:background="@null"
                 android:textColor="@color/abc_primary_text_material_light"
-                android:text="text" />
+                android:text="text"
+                android:singleLine="true"
+                android:imeOptions="actionSearch"/>
         </LinearLayout>
 
     </android.support.v7.widget.Toolbar>

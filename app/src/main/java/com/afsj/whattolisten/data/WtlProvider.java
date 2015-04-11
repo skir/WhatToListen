@@ -10,7 +10,7 @@ import android.net.Uri;
 /**
  * Created by ilia on 26.03.15.
  */
-public class WtlProovider  extends ContentProvider {
+public class WtlProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private DbHelper mOpenHelper;
