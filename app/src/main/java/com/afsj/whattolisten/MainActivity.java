@@ -12,10 +12,13 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -35,23 +38,64 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     private static final int HISTORY_LOADER = 0;
     private Drawer drawer;
     private HistoryAdapter adapter;
+    private Toolbar toolbar;
+    private int toolbarOffset = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         RecyclerView recyclerView = ((RecyclerView) findViewById(R.id.history));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if(dy > 0 && toolbar.getHeight() > toolbarOffset) { // go down
+                    if(toolbarOffset + dy <= toolbar.getHeight()) {
+                        toolbar.setTranslationY(toolbar.getTranslationY() - dy);
+                        toolbarOffset += dy;
+                    }else {
+                        toolbar.setTranslationY(-toolbar.getHeight());
+                        toolbarOffset = toolbar.getHeight();
+                    }
+                }
+                if(dy < 0 && toolbarOffset > 0) {
+                    if (toolbarOffset + dy > 0) {
+                        toolbar.setTranslationY(toolbar.getTranslationY() - dy);
+                        toolbarOffset += dy;
+                    }else{
+                        toolbar.setTranslationY(0);
+                        toolbarOffset = 0;
+                    }
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(newState == 0) {
+                    if ((double) toolbarOffset > (double) toolbar.getHeight() / 2.0) {
+                        toolbar.animate().translationY(-toolbar.getHeight()).setInterpolator(new AccelerateInterpolator()).start();
+                        toolbarOffset = toolbar.getHeight();
+                    }else {
+                        toolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
+                        toolbarOffset = 0;
+                    }
+                }
+            }
+        });
         adapter = new HistoryAdapter(null);
 
         recyclerView.setAdapter(adapter);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         drawer = new Drawer()
                 .withActivity(this)
