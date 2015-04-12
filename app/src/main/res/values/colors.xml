@@ -3,5 +3,8 @@
     <color name="white">#ffffff</color>
     <color name="dark_grey">#ff313131</color>
 
-
+    <color name="material_drawer_primary">#5D4037</color>
+    <color name="material_drawer_primary_dark">#4E342E</color>
+    <color name="material_drawer_primary_light">#6D4C41</color>
+    <color name="material_drawer_accent">#1A237E</color>
 </resources>

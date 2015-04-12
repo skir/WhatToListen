@@ -1,16 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- Layout for weather forecast list item for future day (not today) -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="60dp"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/list_item_icon"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_action_action_search" />
+
+    </FrameLayout>
 
     <TextView
+        android:id="@+id/query"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/nothing_to_show"
-        android:id="@+id/query"
-        android:layout_marginTop="16dp"
-        android:textSize="16sp"
-        android:textIsSelectable="false"
-        android:layout_gravity="left" />
+        android:fontFamily="sans-serif-condensed"
+        android:textSize="20sp"
+        android:layout_marginRight="16dp" />
+
 </LinearLayout>

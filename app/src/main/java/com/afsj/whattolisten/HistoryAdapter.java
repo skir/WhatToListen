@@ -20,6 +20,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private DataSetObserver mDataSetObserver;
     private final int TYPE_HISTORY_ITEM = 1;
     private final int TYPE_EMPTY = 0;
+    private final int TYPE_HEADER = 2;
 
     public HistoryAdapter(Cursor data){
         this.data = data;
@@ -34,12 +35,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType){
             case TYPE_EMPTY:
-                Log.e("adapter","created empty");
+//                Log.e("adapter","created empty");
                 return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item_empty, parent, false));
             case TYPE_HISTORY_ITEM:
-                Log.e("adapter","created not empty");
+//                Log.e("adapter","created not empty");
                 View history_item = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item, parent, false);
                 return new HistoryViewHolder(history_item);
+            case TYPE_HEADER:
+                return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.header, parent, false));
         }
 //TODO add header
         throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
@@ -48,28 +51,33 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        if(data.getCount() > 0)
-            return TYPE_HISTORY_ITEM;
-        else
-            return TYPE_EMPTY;
+        if(position == 0)
+            return TYPE_HEADER;
+        if(data != null) {
+            if (data.getCount() > 0)
+                return TYPE_HISTORY_ITEM;
+            else
+                return TYPE_EMPTY;
+        }
+        return TYPE_EMPTY;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Log.e("onBind", String.valueOf(position));
-        if(data.moveToPosition(position)) {
+//        Log.e("onBind", String.valueOf(position));
+        if(position > 0 && data != null && data.moveToPosition(position - 1)) {
             ((HistoryViewHolder) holder).mTextView.setText(data.getString(data.getColumnIndex(Contract.HistoryEntry.QUERY)));
 //            data.moveToNext();
         }
-        
+
     }
 
     @Override
     public int getItemCount() {
-        if(data.getCount() > 0)
-            return data.getCount();
+        if(data!=null)
+            return data.getCount() + 1; //+header
         else
-            return 1;
+            return 1 + 1;   //header + empty item
     }
 
     public Cursor swapCursor(Cursor newCursor) {
