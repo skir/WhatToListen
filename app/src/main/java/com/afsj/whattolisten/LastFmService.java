@@ -1,10 +1,13 @@
 package com.afsj.whattolisten;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+
+import com.afsj.whattolisten.data.Contract;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,7 +45,10 @@ public class LastFmService extends IntentService {
     }
 
     private void search(String query){
-        //TODO add query to History table
+        ContentValues values = new ContentValues();
+        values.put(Contract.HistoryEntry.QUERY, query);
+        getContentResolver().insert(Contract.HistoryEntry.CONTENT_URI, values);
+
         HttpURLConnection urlConnection = null;
         String json = "";
         try {

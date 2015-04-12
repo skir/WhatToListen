@@ -21,7 +21,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile('com.mikepenz.materialdrawer:library:2.7.6@aar') {
+    compile('com.mikepenz.materialdrawer:library:2.7.7@aar') {
         transitive = true
     }
     compile 'com.android.support:appcompat-v7:22.0.0'

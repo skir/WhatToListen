@@ -12,17 +12,16 @@ import android.widget.TextView;
 import com.afsj.whattolisten.data.Contract;
 
 /**
- * Created by ilia on 11.04.15.
+ * Created by ilia on 12.04.15.
  */
-public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
-
+public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Cursor data;
     private DataSetObserver mDataSetObserver;
     private final int TYPE_HISTORY_ITEM = 1;
     private final int TYPE_EMPTY = 0;
     private final int TYPE_HEADER = 2;
 
-    public HistoryAdapter(Cursor data){
+    public ResultsAdapter(Cursor data){
         this.data = data;
         mDataSetObserver = new NotifyingDataSetObserver();
         if (data != null) {
@@ -33,7 +32,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.e("adapter","created " + String.valueOf(viewType));
         switch (viewType){
             case TYPE_EMPTY:
                 return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item_empty, parent, false));
@@ -49,7 +47,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-//        Log.e("data",String.valueOf(data.getCount()));
         if(position == 0)
             return TYPE_HEADER;
         if(data != null && data.getCount() > 0)
