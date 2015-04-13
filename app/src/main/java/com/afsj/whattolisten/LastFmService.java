@@ -35,6 +35,8 @@ public class LastFmService extends IntentService {
     private static final String API_KEY = "77ce255e53b059752de28ac12846e2f6";
     private static final String API_SECRET = "2b3e2099eeb8608316f1ed8e78f311ba";
 
+    private static boolean fromHistory = false;
+
     public LastFmService() {
         super("LastFmService");
     }
@@ -47,6 +49,7 @@ public class LastFmService extends IntentService {
                 case SEARCH:
                     if(intent.hasExtra(QUERY))
                         search(intent.getStringExtra(QUERY));
+                    fromHistory = intent.getBooleanExtra("from history",false);
             }
         }
     }
@@ -54,7 +57,7 @@ public class LastFmService extends IntentService {
     private void search(String query){
         ContentValues values = new ContentValues();
         values.put(Contract.HistoryEntry.QUERY, query);
-        getContentResolver().insert(Contract.HistoryEntry.CONTENT_URI, values);
+        if(!fromHistory) getContentResolver().insert(Contract.HistoryEntry.CONTENT_URI, values);
 
         HttpURLConnection urlConnection = null;
         String json = "";

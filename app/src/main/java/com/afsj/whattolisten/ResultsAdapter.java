@@ -1,5 +1,6 @@
 package com.afsj.whattolisten;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afsj.whattolisten.data.Contract;
@@ -17,17 +19,24 @@ import com.afsj.whattolisten.data.Contract;
 public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Cursor data;
     private DataSetObserver mDataSetObserver;
+    private static Context mContext;
+    private static ListItemClick listItemClick;
     private final int TYPE_HISTORY_ITEM = 1;
     private final int TYPE_EMPTY = 0;
     private final int TYPE_HEADER = 2;
 
-    public ResultsAdapter(Cursor data){
+    public ResultsAdapter(Context context,Cursor data){
         this.data = data;
+        mContext = context;
         mDataSetObserver = new NotifyingDataSetObserver();
         if (data != null) {
 //            this.data.moveToFirst();
             data.registerDataSetObserver(mDataSetObserver);
         }
+    }
+
+    public void setListItemClick(ListItemClick l){
+        listItemClick = l;
     }
 
     @Override
@@ -106,11 +115,17 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    public static class HistoryViewHolder extends RecyclerView.ViewHolder {
+    public static class HistoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView mTextView;
         public HistoryViewHolder(View v) {
             super(v);
             mTextView = ((TextView) v.findViewById(R.id.query));
+            ((ImageView) v.findViewById(R.id.list_item_icon)).setImageDrawable(mContext.getDrawable(R.drawable.ic_action_maps_local_offer));
+        }
+
+        @Override
+        public void onClick(View v) {
+            listItemClick.listItemClick(mTextView.getText().toString());
         }
     }
 
@@ -118,5 +133,9 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public EmptyViewHolder(View v) {
             super(v);
         }
+    }
+
+    public interface ListItemClick{
+        public void listItemClick(String query);
     }
 }
