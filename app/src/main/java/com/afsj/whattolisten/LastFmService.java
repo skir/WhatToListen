@@ -9,6 +9,10 @@ import android.util.Log;
 
 import com.afsj.whattolisten.data.Contract;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,8 +21,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Vector;
 
 public class LastFmService extends IntentService {
+
+    private final String LOG_TAG = "lastFMService";
 
     public static final String SEARCH = "search";
     public static final String QUERY = "query";
@@ -89,12 +96,42 @@ public class LastFmService extends IntentService {
             }
             json = buffer.toString();
             Log.e("SERVICE result",json);
+            saveData(json);
         }catch (MalformedURLException e){
             Log.e("SERVICE",e.toString());
         }catch (ProtocolException e) {
             Log.e("SERVICE", e.toString());
         }catch (IOException e) {
             Log.e("SERVICE", e.toString());
+        }
+    }
+
+    private void saveData(String json){
+        try{
+            JSONObject data = new JSONObject(json);
+            JSONArray tags = data.getJSONObject("results").getJSONObject("tagmatches").getJSONArray("tag");
+            Vector<ContentValues> valuesVector = new Vector<>(tags.length());
+
+            for(int i = 0; i < tags.length(); i++){
+                JSONObject tag = tags.getJSONObject(i);
+                ContentValues values = new ContentValues();
+                values.put(Contract.ResultsEntry.NAME,tag.getString("name"));
+                values.put(Contract.ResultsEntry.URL,tag.getString("url"));
+                values.put(Contract.ResultsEntry.TYPE,"tag");
+
+                valuesVector.add(values);
+            }
+
+            if(valuesVector.size() > 0){
+                ContentValues[] contentValues = new ContentValues[valuesVector.size()];
+                valuesVector.toArray(contentValues);
+
+                getContentResolver().delete(Contract.ResultsEntry.CONTENT_URI, null, null);
+                getContentResolver().bulkInsert(Contract.ResultsEntry.CONTENT_URI,contentValues);
+            }
+        }catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
         }
     }
 }

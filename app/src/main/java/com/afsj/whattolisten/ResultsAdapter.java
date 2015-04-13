@@ -58,7 +58,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 //        Log.e("onBind", String.valueOf(position));
         if(position > 0 && data != null && data.moveToPosition(position - 1)) {
-            ((HistoryViewHolder) holder).mTextView.setText(data.getString(data.getColumnIndex(Contract.HistoryEntry.QUERY)));
+            ((HistoryViewHolder) holder).mTextView.setText(data.getString(data.getColumnIndex(Contract.ResultsEntry.NAME)));
 //            data.moveToNext();
         }
 

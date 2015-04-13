@@ -1,5 +1,6 @@
 package com.afsj.whattolisten;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -147,6 +148,11 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         getSupportLoaderManager().initLoader(RESULTS_LOADER, null, this);
         drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Intent intent = new Intent(this,LastFmService.class);
+        intent.setAction(LastFmService.SEARCH);
+        intent.putExtra(LastFmService.QUERY,searchQuery);
+        startService(intent);
     }
 
     @Override
@@ -155,7 +161,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         if(id == HISTORY_LOADER)
                 return new CursorLoader(getBaseContext(),
                         Contract.HistoryEntry.CONTENT_URI,
-                        new String[]{Contract.HistoryEntry.QUERY}, null, null, null);
+                        new String[]{Contract.HistoryEntry.QUERY, Contract.HistoryEntry._ID}, null, null, Contract.HistoryEntry._ID + " DESC");
         else
                 return new CursorLoader(getBaseContext(),
                         Contract.ResultsEntry.CONTENT_URI,
