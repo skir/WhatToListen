@@ -45,8 +45,8 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             case TYPE_EMPTY:
                 return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item_empty, parent, false));
             case TYPE_HISTORY_ITEM:
-                View history_item = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item, parent, false);
-                return new HistoryViewHolder(history_item);
+                View history_item = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_tag, parent, false);
+                return new ResultsViewHolder(history_item);
             case TYPE_HEADER:
                 return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.header, parent, false));
         }
@@ -67,7 +67,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 //        Log.e("onBind", String.valueOf(position));
         if(position > 0 && data != null && data.moveToPosition(position - 1)) {
-            ((HistoryViewHolder) holder).mTextView.setText(data.getString(data.getColumnIndex(Contract.ResultsEntry.NAME)));
+            ((ResultsViewHolder) holder).mTextView.setText(data.getString(data.getColumnIndex(Contract.ResultsEntry.NAME)));
 //            data.moveToNext();
         }
 
@@ -115,12 +115,13 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    public static class HistoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ResultsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView mTextView;
-        public HistoryViewHolder(View v) {
+        public ResultsViewHolder(View v) {
             super(v);
             mTextView = ((TextView) v.findViewById(R.id.query));
-            ((ImageView) v.findViewById(R.id.list_item_icon)).setImageDrawable(mContext.getDrawable(R.drawable.ic_action_maps_local_offer));
+            v.setOnClickListener(this);
+//            ((ImageView) v.findViewById(R.id.list_item_icon)).setImageDrawable(mContext.getDrawable(R.drawable.ic_action_maps_local_offer));
         }
 
         @Override

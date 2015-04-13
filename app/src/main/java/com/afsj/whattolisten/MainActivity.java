@@ -146,7 +146,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     private void search(String searchQuery, boolean fromHistory){
         Intent intent = new Intent(this, ResultsActivity.class);
         intent.putExtra(LastFmService.QUERY,searchQuery);
-        intent.putExtra("from history",fromHistory);
+        intent.putExtra(getString(R.string.from_history),fromHistory);
 //        getWindow().setSharedElementEnterTransition(new ChangeImageTransform());
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, toolbar, "toolbar");
         ActivityCompat.startActivity(this, intent, options.toBundle());

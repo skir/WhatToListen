@@ -29,6 +29,7 @@ public class LastFmService extends IntentService {
 
     public static final String SEARCH = "search";
     public static final String QUERY = "query";
+    public static final String INFO = "info";
 
     private static final String BASE_URL = "http://ws.audioscrobbler.com/2.0/?";
 
@@ -48,16 +49,22 @@ public class LastFmService extends IntentService {
             switch (action){
                 case SEARCH:
                     if(intent.hasExtra(QUERY))
+                        fromHistory = intent.getBooleanExtra(getString(R.string.from_history),false);
                         search(intent.getStringExtra(QUERY));
-                    fromHistory = intent.getBooleanExtra("from history",false);
+                    break;
+                case INFO:
+                    if(intent.hasExtra(QUERY))
+                        getInfo(intent.getStringExtra(QUERY));
             }
         }
     }
 
     private void search(String query){
-        ContentValues values = new ContentValues();
-        values.put(Contract.HistoryEntry.QUERY, query);
-        if(!fromHistory) getContentResolver().insert(Contract.HistoryEntry.CONTENT_URI, values);
+        if(!fromHistory){
+            ContentValues values = new ContentValues();
+            values.put(Contract.HistoryEntry.QUERY, query);
+            getContentResolver().insert(Contract.HistoryEntry.CONTENT_URI, values);
+        }
 
         HttpURLConnection urlConnection = null;
         String json = "";
@@ -100,6 +107,56 @@ public class LastFmService extends IntentService {
             json = buffer.toString();
             Log.e("SERVICE result",json);
             saveData(json);
+        }catch (MalformedURLException e){
+            Log.e("SERVICE",e.toString());
+        }catch (ProtocolException e) {
+            Log.e("SERVICE", e.toString());
+        }catch (IOException e) {
+            Log.e("SERVICE", e.toString());
+        }
+    }
+
+    private void getInfo(String tagName){
+        HttpURLConnection urlConnection = null;
+        String json = "";
+        try {
+            Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                    .appendQueryParameter("method", "tag.getinfo")
+                    .appendQueryParameter("tag", tagName)
+                    .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter("format", "json")
+                    .build();
+
+            URL url = new URL(builtUri.toString());
+
+            // Create the request to OpenWeatherMap, and open the connection
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            // Read the input stream into a String
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null) {
+                // Nothing to do.
+                return;
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                // But it does make debugging a *lot* easier if you print out the completed
+                // buffer for debugging.
+                buffer.append(line + "\n");
+            }
+
+            if (buffer.length() == 0) {
+                // Stream was empty.  No point in parsing.
+                return;
+            }
+            json = buffer.toString();
+            Log.e("SERVICE result",json);
         }catch (MalformedURLException e){
             Log.e("SERVICE",e.toString());
         }catch (ProtocolException e) {

@@ -1,5 +1,6 @@
 package com.afsj.whattolisten;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.app.ActivityCompat;
@@ -34,11 +35,14 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     private RecyclerView recyclerView;
     private Toolbar toolbar;
     private int toolbarOffset = 0;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results);
+
+        mContext = this;
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -48,7 +52,9 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
         adapterResults.setListItemClick(new ResultsAdapter.ListItemClick() {
             @Override
             public void listItemClick(String query) {
-
+                Intent intent = new Intent(mContext,Tag.class);
+                intent.putExtra(LastFmService.QUERY,query);
+                mContext.startActivity(intent);
             }
         });
 
@@ -96,7 +102,8 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
             }
         });
 
-        ((EditText) findViewById(R.id.searchQuery)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        EditText editText = (EditText) findViewById(R.id.searchQuery);
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
@@ -109,8 +116,10 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
         });
 
         Intent intent = getIntent();
-        if(intent.hasExtra(LastFmService.QUERY))
-            search(intent.getStringExtra(LastFmService.QUERY), intent.getBooleanExtra("from history", false));
+        if(intent.hasExtra(LastFmService.QUERY)) {
+            editText.setText(intent.getStringExtra(LastFmService.QUERY));
+            search(intent.getStringExtra(LastFmService.QUERY), intent.getBooleanExtra(getString(R.string.from_history), false));
+        }
 
         getSupportLoaderManager().initLoader(RESULTS_LOADER, null, this);
     }
@@ -119,7 +128,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
         Intent intentService = new Intent(this,LastFmService.class);
         intentService.setAction(LastFmService.SEARCH);
         intentService.putExtra(LastFmService.QUERY,query);
-        intentService.putExtra("from history",fromHistory);
+        intentService.putExtra(getString(R.string.from_history),fromHistory);
         startService(intentService);
     }
 
