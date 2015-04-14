@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afsj.whattolisten.DividerItemDecoration;
+import com.afsj.whattolisten.ImageTransformation;
 import com.afsj.whattolisten.R;
 import com.afsj.whattolisten.data.Contract;
 import com.squareup.picasso.Picasso;
@@ -87,6 +88,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                         JSONObject item = array.getJSONObject(1);
                         Picasso.with(mContext)
                                 .load(item.getJSONArray("image").getJSONObject(4).getString("#text"))
+                                .transform(new ImageTransformation())
                                 .into(((InfoViewHolder) holder).image);
                     }catch (JSONException e){
                         Log.e("JSONException",e.toString());

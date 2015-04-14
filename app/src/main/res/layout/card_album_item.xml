@@ -22,7 +22,8 @@
         android:layout_gravity="center_horizontal"
         android:gravity="center"
         android:singleLine="true"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:textColor="@color/abc_primary_text_material_light" />
 
     <TextView
         android:layout_width="match_parent"
@@ -33,5 +34,6 @@
         android:layout_gravity="center_horizontal"
         android:gravity="center"
         android:singleLine="true"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:textColor="@color/abc_secondary_text_material_light" />
 </LinearLayout>
