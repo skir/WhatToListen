@@ -38,9 +38,17 @@ public class DbHelper extends SQLiteOpenHelper {
                 Contract.InfoEntry.ARTISTS + " TEXT NOT NULL, " +
                 Contract.InfoEntry.SUMMARY + " TEXT NOT NULL );";
 
+        final String SQL_CREATE_PLAYLIST_TABLE = "CREATE TABLE " + Contract.PlaylistEntry.TABLE_NAME + " (" +
+                Contract.PlaylistEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                Contract.PlaylistEntry.LOCATION + " TEXT NOT NULL, " +
+                Contract.PlaylistEntry.TITLE + " TEXT NOT NULL, " +
+                Contract.PlaylistEntry.ALBUM + " TEXT NOT NULL, " +
+                Contract.PlaylistEntry.ARTIST+ " TEXT NOT NULL );";
+
         sqLiteDatabase.execSQL(SQL_CREATE_HISTORY_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_RESULTS_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_INFO_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_PLAYLIST_TABLE);
     }
 
     @Override
@@ -48,6 +56,7 @@ public class DbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + HistoryEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ResultsEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Contract.InfoEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Contract.PlaylistEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

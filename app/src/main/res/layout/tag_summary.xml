@@ -34,7 +34,7 @@
     <ImageButton
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:id="@+id/imageButton"
+        android:id="@+id/play"
         android:background="@drawable/play"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"

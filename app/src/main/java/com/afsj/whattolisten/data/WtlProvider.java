@@ -18,12 +18,14 @@ public class WtlProvider extends ContentProvider {
     static final int HISTORY = 100;
     static final int RESULTS = 101;
     static final int INFO = 102;
+    static final int PLAYLIST = 103;
 
     static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_HISTORY,HISTORY);
         uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_RESULTS,RESULTS);
         uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_INFO,INFO);
+        uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_PLAYLIST,PLAYLIST);
 
         return uriMatcher;
     }
@@ -47,7 +49,9 @@ public class WtlProvider extends ContentProvider {
             case RESULTS:
                 return Contract.ResultsEntry.CONTENT_TYPE;
             case INFO:
-                return Contract.ResultsEntry.CONTENT_TYPE;
+                return Contract.InfoEntry.CONTENT_TYPE;
+            case PLAYLIST:
+                return Contract.PlaylistEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -77,6 +81,15 @@ public class WtlProvider extends ContentProvider {
                 break;
             case INFO:
                 retCursor = mOpenHelper.getReadableDatabase().query(Contract.InfoEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            case PLAYLIST:
+                retCursor = mOpenHelper.getReadableDatabase().query(Contract.PlaylistEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -119,7 +132,15 @@ public class WtlProvider extends ContentProvider {
             case INFO:{
                 long _id = db.insert(Contract.InfoEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
-                    returnUri = Contract.ResultsEntry.buildUri(_id);
+                    returnUri = Contract.InfoEntry.buildUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case PLAYLIST:{
+                long _id = db.insert(Contract.PlaylistEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = Contract.PlaylistEntry.buildUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -141,18 +162,22 @@ public class WtlProvider extends ContentProvider {
         // Student: Use the uriMatcher to match the WEATHER and LOCATION URI's we are going to
         // handle.  If it doesn't match these, throw an UnsupportedOperationException.
         switch (match) {
-            case HISTORY: {
+            case HISTORY:
                 id = db.delete(Contract.HistoryEntry.TABLE_NAME, selection,selectionArgs);
                 break;
-            }
-            case RESULTS:{
+
+            case RESULTS:
                 id = db.delete(Contract.ResultsEntry.TABLE_NAME, selection,selectionArgs);
                 break;
-            }
-            case INFO:{
+
+            case INFO:
                 id = db.delete(Contract.InfoEntry.TABLE_NAME, selection,selectionArgs);
                 break;
-            }
+
+            case PLAYLIST:
+                id = db.delete(Contract.PlaylistEntry.TABLE_NAME, selection,selectionArgs);
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -189,7 +214,7 @@ public class WtlProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case RESULTS:
+            case RESULTS: {
                 db.beginTransaction();
                 int returnCount = 0;
                 try {
@@ -206,6 +231,25 @@ public class WtlProvider extends ContentProvider {
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
+            }
+            case PLAYLIST: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+
+                        long _id = db.insert(Contract.PlaylistEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            }
             default:
                 return super.bulkInsert(uri, values);
         }

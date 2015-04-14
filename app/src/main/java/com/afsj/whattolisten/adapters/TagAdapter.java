@@ -1,6 +1,7 @@
 package com.afsj.whattolisten.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,12 +11,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afsj.whattolisten.DividerItemDecoration;
 import com.afsj.whattolisten.ImageTransformation;
+import com.afsj.whattolisten.LastFmService;
 import com.afsj.whattolisten.R;
 import com.afsj.whattolisten.data.Contract;
 import com.squareup.picasso.Picasso;
@@ -32,15 +35,17 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     private Cursor info;
     private static Context mContext;
     private static int windowWidth;
+    private static String tag;
     private DataSetObserver mDataSetObserver;
     private final int TYPE_HEADER_INFO = 0;
     private final int TYPE_ALBUMS = 1;
     private final int TYPE_ARTISTS = 2;
 
-    public TagAdapter(Context context,Cursor info,int windowWidth){
+    public TagAdapter(Context context,Cursor info,int windowWidth,String tag){
         this.info = info;
         mContext = context;
         this.windowWidth = windowWidth;
+        this.tag = tag;
         mDataSetObserver = new NotifyingDataSetObserver();
         if (info != null) {
 //            this.data.moveToFirst();
@@ -153,6 +158,15 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             mTextView = (TextView) v.findViewById(R.id.info);
             image = (ImageView) v.findViewById(R.id.image);
             ((RelativeLayout) v.findViewById(R.id.layout)).getLayoutParams().height = 2 * windowWidth / 3;
+            ((ImageButton) v.findViewById(R.id.play)).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intentService = new Intent(mContext,LastFmService.class);
+                    intentService.setAction(LastFmService.RADIO_TUNE);
+                    intentService.putExtra(LastFmService.QUERY,tag);
+                    mContext.startService(intentService);
+                }
+            });
         }
     }
 

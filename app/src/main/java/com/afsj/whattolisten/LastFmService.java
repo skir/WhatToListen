@@ -3,7 +3,6 @@ package com.afsj.whattolisten;
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -21,6 +20,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Vector;
 
 public class LastFmService extends IntentService {
@@ -30,11 +31,14 @@ public class LastFmService extends IntentService {
     public static final String SEARCH = "search";
     public static final String QUERY = "query";
     public static final String INFO = "info";
+    public static final String RADIO_TUNE = "radio_tune";
 
     private static final String BASE_URL = "http://ws.audioscrobbler.com/2.0/?";
+    private static final String RADIO_URL = "http://ext.last.fm/2.0/";
 
     private static final String API_KEY = "77ce255e53b059752de28ac12846e2f6";
     private static final String API_SECRET = "2b3e2099eeb8608316f1ed8e78f311ba";
+    private static final String sk = "e3ce21a934937f14220bf16ff1386e3b";
 
     private static boolean fromHistory = false;
 
@@ -55,6 +59,10 @@ public class LastFmService extends IntentService {
                 case INFO:
                     if(intent.hasExtra(QUERY))
                         getInfo(intent.getStringExtra(QUERY));
+                    break;
+                case RADIO_TUNE:
+                    if(intent.hasExtra(QUERY))
+                        getPlaylist(intent.getStringExtra(QUERY));
             }
         }
     }
@@ -66,14 +74,123 @@ public class LastFmService extends IntentService {
             getContentResolver().insert(Contract.HistoryEntry.CONTENT_URI, values);
         }
 
-        saveData(get(query, "tag.search",null));
+        saveData(get(query, "tag.search", null));
     }
 
     private void getInfo(String tagName){
-        String info = get(tagName,"tag.getinfo",null);
-        String artists = get(tagName,"tag.gettopartists","4");
-        String albums = get(tagName,"tag.gettopalbums","4");
-        saveInfo(info,albums,artists);
+        String info = get(tagName, "tag.getinfo", null);
+        String artists = get(tagName,"tag.gettopartists","5");
+        String albums = get(tagName, "tag.gettopalbums", "5");
+        saveInfo(info, albums, artists);
+    }
+
+    private void getPlaylist(String tag){
+        String tune = tune(tag);
+
+        try{
+            JSONObject tuneJSON = new JSONObject(tune);
+            if(tuneJSON.has("error"))
+                return;
+        }catch (JSONException e){
+            Log.e("JSONException",e.toString());
+        }
+
+        String method = "prototype.getPlaylist";
+        String md5Str = "api_key" + API_KEY + "method" + method + "sk" + sk + API_SECRET;
+        String api_sig = md5(md5Str);
+        HttpURLConnection urlConnection = null;
+        String json = "";
+        try {
+            Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
+                    .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter("method", method)
+                    .appendQueryParameter("sk",sk)
+                    .appendQueryParameter("api_sig",api_sig)
+                    .appendQueryParameter("format", "json");
+
+            Uri builtUri = builder.build();
+
+            URL url = new URL(builtUri.toString());
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null)
+                return;
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line + "\n");
+            }
+
+            if (buffer.length() == 0)
+                return;
+
+            json = buffer.toString();
+            Log.e("SERVICE result", json);
+            savePlaylist(json);
+        }catch (MalformedURLException e){
+            Log.e("SERVICE",e.toString());
+        }catch (ProtocolException e) {
+            Log.e("SERVICE", e.toString());
+        }catch (IOException e) {
+            Log.e("SERVICE", e.toString());
+        }
+    }
+
+    private String tune(String tag){
+        HttpURLConnection urlConnection = null;
+        String method = "prototype.tune";
+        String station = "lastfm://globaltags/" + tag.replaceAll(" ", "%20");
+        String md5Str = "api_key" + API_KEY + "method" + method + "sk" + sk + "station" + station + API_SECRET;
+        String api_sig = md5(md5Str);
+        String json = "";
+        try {
+            Uri builtUri = Uri.parse(RADIO_URL).buildUpon()
+                    .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter("method", method)
+                    .appendQueryParameter("sk",sk)
+                    .appendQueryParameter("station", station)
+                    .appendQueryParameter("api_sig",api_sig)
+                    .appendQueryParameter("format", "json")
+                    .build();
+
+            URL url = new URL(builtUri.toString());
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("POST");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null)
+                return "";
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line + "\n");
+            }
+
+            if (buffer.length() == 0)
+                return "";
+
+            json = buffer.toString();
+            Log.e("SERVICE RADIO result", json);
+        }catch (MalformedURLException e){
+            Log.e("SERVICE",e.toString());
+        }catch (ProtocolException e) {
+            Log.e("SERVICE", e.toString());
+        }catch (IOException e) {
+            Log.e("SERVICE", e.toString());
+        }
+        return json;
     }
 
     private String get(String tag, String method, String limit){
@@ -82,7 +199,6 @@ public class LastFmService extends IntentService {
         try {
             Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
                     .appendQueryParameter("method", method)
-
                     .appendQueryParameter("tag", tag)
                     .appendQueryParameter("api_key", API_KEY)
                     .appendQueryParameter("format", "json");
@@ -123,6 +239,8 @@ public class LastFmService extends IntentService {
         }
         return json;
     }
+
+
 
     private void saveData(String json){
         try{
@@ -169,5 +287,60 @@ public class LastFmService extends IntentService {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
+    }
+
+    private void savePlaylist(String playlist){
+        try{
+            JSONObject data = new JSONObject(playlist);
+            JSONArray trackList = data.getJSONObject("playlist").getJSONObject("trackList").getJSONArray("track");
+            Vector<ContentValues> valuesVector = new Vector<>(trackList.length());
+
+            for(int i = 0; i < trackList.length(); i++){
+                JSONObject track = trackList.getJSONObject(i);
+                ContentValues values = new ContentValues();
+                values.put(Contract.PlaylistEntry.TITLE, track.getString("title"));
+                values.put(Contract.PlaylistEntry.ALBUM, track.getString("album"));
+                values.put(Contract.PlaylistEntry.ARTIST, track.getString("creator"));
+                values.put(Contract.PlaylistEntry.LOCATION,track.getString("location"));
+
+                valuesVector.add(values);
+            }
+
+            if(valuesVector.size() > 0){
+                ContentValues[] contentValues = new ContentValues[valuesVector.size()];
+                valuesVector.toArray(contentValues);
+
+                getContentResolver().delete(Contract.PlaylistEntry.CONTENT_URI, null, null);
+                getContentResolver().bulkInsert(Contract.PlaylistEntry.CONTENT_URI,contentValues);
+            }
+        }catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+    }
+
+    public static String md5(final String s) {
+        final String MD5 = "MD5";
+        try {
+            // Create MD5 Hash
+            MessageDigest digest = java.security.MessageDigest
+                    .getInstance(MD5);
+            digest.update(s.getBytes());
+            byte messageDigest[] = digest.digest();
+
+            // Create Hex String
+            StringBuilder hexString = new StringBuilder();
+            for (byte aMessageDigest : messageDigest) {
+                String h = Integer.toHexString(0xFF & aMessageDigest);
+                while (h.length() < 2)
+                    h = "0" + h;
+                hexString.append(h);
+            }
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

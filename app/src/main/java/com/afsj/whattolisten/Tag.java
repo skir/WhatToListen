@@ -38,13 +38,20 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        String tag = "";
+        Intent intent = getIntent();
+        if(intent.hasExtra(LastFmService.QUERY)) {
+            getSupportActionBar().setTitle(intent.getStringExtra(LastFmService.QUERY));
+            tag = intent.getStringExtra(LastFmService.QUERY);
+        }
+
         toolbarBackground = getResources().getDrawable(R.color.material_drawer_primary);
         toolbarBackground.setAlpha(0);
         toolbar.setBackgroundDrawable(toolbarBackground);
         transition = 0;
         windowWidth = getWindowManager().getDefaultDisplay().getWidth();
 
-        adapterInfo = new TagAdapter(this,null,windowWidth);
+        adapterInfo = new TagAdapter(this,null,windowWidth,tag);
         recyclerView = ((RecyclerView) findViewById(R.id.cardList));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -64,11 +71,7 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
             }
         });
 
-        Intent intent = getIntent();
-        if(intent.hasExtra(LastFmService.QUERY)) {
-            getSupportActionBar().setTitle(intent.getStringExtra(LastFmService.QUERY));
-            getInfo(intent.getStringExtra(LastFmService.QUERY));
-        }
+        getInfo(tag);
 
         getSupportLoaderManager().initLoader(INFO_LOADER, null, this);
     }

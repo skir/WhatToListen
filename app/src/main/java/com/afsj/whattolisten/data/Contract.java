@@ -24,6 +24,7 @@ public class Contract {
     public static final String PATH_HISTORY = "history";
     public static final String PATH_RESULTS = "results";
     public static final String PATH_INFO = "info";
+    public static final String PATH_PLAYLIST = "playlist";
 
     public static final class HistoryEntry implements BaseColumns {
         public static final String TABLE_NAME = PATH_HISTORY;
@@ -69,6 +70,25 @@ public class Contract {
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_INFO).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_INFO;
+
+        public static Uri buildUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
+    public static final class PlaylistEntry implements BaseColumns{
+        public static final String TABLE_NAME = PATH_PLAYLIST;
+
+        public static final String TITLE = "title";
+        public static final String LOCATION = "location";
+        public static final String ALBUM = "album";
+        public static final String ARTIST = "artist";
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYLIST).build();
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_INFO;
