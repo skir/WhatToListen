@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="259dp"
-    android:gravity="bottom">
+    android:layout_height="253dp"
+    android:gravity="bottom"
+    android:id="@+id/layout">
 
     <ImageView
         android:layout_width="fill_parent"
-        android:layout_height="215dp"
-        android:id="@+id/imageView2"
-        android:background="@drawable/list_header" />
+        android:layout_height="fill_parent"
+        android:id="@+id/image"
+        android:background="@drawable/list_header"
+        android:layout_marginBottom="38dp"
+        android:scaleType="centerCrop" />
 
     <TextView
         android:layout_width="match_parent"
@@ -16,17 +19,16 @@
         android:id="@+id/info"
         android:textSize="20sp"
         android:fontFamily="sans-serif-condensed"
-        android:layout_marginLeft="16dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginTop="56dp"
         android:textColor="@color/md_light_blue_100"
         android:ellipsize="end"
         android:gravity="top|left"
-        android:layout_marginRight="16dp"
-        android:lines="6"
-        android:maxLines="6"
+        android:layout_marginRight="8dp"
+        android:lines="5"
+        android:maxLines="5"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="text"
         android:layout_marginBottom="60dp" />
 
     <ImageButton
@@ -38,7 +40,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="10dp"
         android:src="@drawable/ic_av_play_arrow" />
 
 </RelativeLayout>

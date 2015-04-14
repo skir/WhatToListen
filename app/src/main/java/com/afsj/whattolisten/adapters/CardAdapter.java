@@ -19,19 +19,22 @@ import org.json.JSONObject;
 /**
  * Created by ilia on 14.04.15.
  */
-public class AlbumsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private JSONArray data;
     private Context mContext;
+    private boolean isAlbums;
     private final int TYPE_ALBUM = 0;
+    private final int TYPE_ARTIST = 1;
 
-    public AlbumsAdapter(Context context,String array){
+    public CardAdapter(boolean isAlbums, Context context, String array){
         try {
             data = new JSONArray(array);
         }catch (JSONException e){
             Log.e("JSONExeption",e.toString());
         }
         mContext = context;
+        this.isAlbums = isAlbums;
     }
 
     @Override
@@ -39,6 +42,8 @@ public class AlbumsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         switch (viewType){
             case TYPE_ALBUM:
                 return new AlbumViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_album_item,parent,false));
+            case TYPE_ARTIST:
+                return new ArtistViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_artist_item,parent,false));
         }
         throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
     }
@@ -46,20 +51,28 @@ public class AlbumsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemViewType(int position) {
-        return TYPE_ALBUM;
+        if(isAlbums) return TYPE_ALBUM;
+        else return TYPE_ARTIST;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if(data != null) {
             try {
-                JSONObject item = data.getJSONObject(position);
-                ((AlbumViewHolder) holder).artist.setText(item.getJSONObject("artist").getString("name"));
-                ((AlbumViewHolder) holder).album.setText(item.getString("name"));
-                Picasso.with(mContext)
-                        .load(item.getJSONArray("image").getJSONObject(0).getString("#text"))
-                        .into(((AlbumViewHolder) holder).image);
-
+                if(isAlbums) {
+                    JSONObject item = data.getJSONObject(position);
+                    ((AlbumViewHolder) holder).artist.setText(item.getJSONObject("artist").getString("name"));
+                    ((AlbumViewHolder) holder).album.setText(item.getString("name"));
+                    Picasso.with(mContext)
+                            .load(item.getJSONArray("image").getJSONObject(1).getString("#text"))
+                            .into(((AlbumViewHolder) holder).image);
+                }else{
+                    JSONObject item = data.getJSONObject(position);
+                    ((ArtistViewHolder) holder).artist.setText(item.getString("name"));
+                    Picasso.with(mContext)
+                            .load(item.getJSONArray("image").getJSONObject(1).getString("#text"))
+                            .into(((ArtistViewHolder) holder).image);
+                }
             }catch (JSONException e){
                 Log.e("JSONException",e.toString());
             }
@@ -79,6 +92,16 @@ public class AlbumsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public AlbumViewHolder(View v) {
             super(v);
             album = (TextView) v.findViewById(R.id.album);
+            artist = (TextView) v.findViewById(R.id.artist);
+            image = (ImageView) v.findViewById(R.id.image);
+        }
+    }
+
+    public static class ArtistViewHolder extends RecyclerView.ViewHolder{
+        public TextView artist;
+        public ImageView image;
+        public ArtistViewHolder(View v){
+            super(v);
             artist = (TextView) v.findViewById(R.id.artist);
             image = (ImageView) v.findViewById(R.id.image);
         }

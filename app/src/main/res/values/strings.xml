@@ -20,4 +20,6 @@
     <string name="title_activity_tag">Tag</string>
 
     <string name="from_history">from history</string>
+    <string name="albums">Top Albums</string>
+    <string name="artists">Top Artists</string>
 </resources>

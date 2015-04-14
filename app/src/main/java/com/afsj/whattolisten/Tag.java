@@ -2,6 +2,7 @@ package com.afsj.whattolisten;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -24,6 +25,9 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
     private RecyclerView recyclerView;
     private TagAdapter adapterInfo;
     private int INFO_LOADER = 5;
+    private static int transition;
+    private Drawable toolbarBackground;
+    private static int windowWidth = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +38,31 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        adapterInfo = new TagAdapter(this,null);
+        toolbarBackground = getResources().getDrawable(R.color.material_drawer_primary);
+        toolbarBackground.setAlpha(0);
+        toolbar.setBackgroundDrawable(toolbarBackground);
+        transition = 0;
+        windowWidth = getWindowManager().getDefaultDisplay().getWidth();
+
+        adapterInfo = new TagAdapter(this,null,windowWidth);
         recyclerView = ((RecyclerView) findViewById(R.id.cardList));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapterInfo);
+
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                transition += dy;
+                int header = 2 * windowWidth / 3 - getResources().getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
+//                Log.e("DY",String.valueOf(header));
+                if (transition <= header + 1) {
+                    int newAlpha = transition * 255 / header;
+                    toolbarBackground.setAlpha(newAlpha);
+                }
+            }
+        });
 
         Intent intent = getIntent();
         if(intent.hasExtra(LastFmService.QUERY)) {
