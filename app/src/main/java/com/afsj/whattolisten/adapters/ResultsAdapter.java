@@ -1,4 +1,4 @@
-package com.afsj.whattolisten;
+package com.afsj.whattolisten.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afsj.whattolisten.R;
 import com.afsj.whattolisten.data.Contract;
 
 /**

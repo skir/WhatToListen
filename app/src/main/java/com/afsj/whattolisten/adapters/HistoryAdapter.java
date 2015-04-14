@@ -1,4 +1,4 @@
-package com.afsj.whattolisten;
+package com.afsj.whattolisten.adapters;
 
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.afsj.whattolisten.R;
 import com.afsj.whattolisten.data.Contract;
 
 /**

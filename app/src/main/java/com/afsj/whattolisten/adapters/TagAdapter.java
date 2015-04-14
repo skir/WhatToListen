@@ -1,4 +1,4 @@
-package com.afsj.whattolisten;
+package com.afsj.whattolisten.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -11,7 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.afsj.whattolisten.R;
 import com.afsj.whattolisten.data.Contract;
+
+import org.json.JSONArray;
 
 /**
  * Created by ilia on 13.04.15.
@@ -70,7 +73,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     ((InfoViewHolder) holder).mTextView.setText(Html.fromHtml(info.getString(info.getColumnIndex(Contract.InfoEntry.SUMMARY))));
                     break;
                 case 1:
-//                    ((CardViewHolder) holder).recyclerView.setAdapter();
+                    ((CardViewHolder) holder).recyclerView.setAdapter(new AlbumsAdapter(mContext,info.getString(info.getColumnIndex(Contract.InfoEntry.ALBUMS))));
                     break;
             }
         }
