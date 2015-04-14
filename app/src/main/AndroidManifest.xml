@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,29 +31,29 @@
             android:syncable="true" />
 
         <activity
-            android:name=".ResultsActivity"
+            android:name=".activities.ResultsActivity"
             android:label="@string/title_activity_results"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".activities.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.afsj.whattolisten.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".Tag"
+            android:name=".activities.Tag"
             android:label="@string/title_activity_tag"
-            android:parentActivityName=".ResultsActivity"
+            android:parentActivityName=".activities.ResultsActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.afsj.whattolisten.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".PlaylistActivity"
+            android:name=".activities.PlaylistActivity"
             android:label="@string/title_activity_playlist"
-            android:parentActivityName=".Tag" >
+            android:parentActivityName=".activities.Tag" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.afsj.whattolisten.Tag" />
+                android:value=".activities.Tag" />
         </activity>
     </application>
 

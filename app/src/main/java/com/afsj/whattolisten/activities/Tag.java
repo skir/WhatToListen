@@ -1,4 +1,4 @@
-package com.afsj.whattolisten;
+package com.afsj.whattolisten.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,9 +13,10 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 
+import com.afsj.whattolisten.LastFmService;
+import com.afsj.whattolisten.R;
+import com.afsj.whattolisten.activities.PlaylistActivity;
 import com.afsj.whattolisten.adapters.TagAdapter;
 import com.afsj.whattolisten.data.Contract;
 

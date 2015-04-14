@@ -1,4 +1,4 @@
-package com.afsj.whattolisten;
+package com.afsj.whattolisten.activities;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -23,6 +23,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.afsj.whattolisten.DividerItemDecoration;
+import com.afsj.whattolisten.LastFmService;
+import com.afsj.whattolisten.R;
 import com.afsj.whattolisten.adapters.HistoryAdapter;
 import com.afsj.whattolisten.data.Contract;
 import com.mikepenz.iconics.typeface.FontAwesome;

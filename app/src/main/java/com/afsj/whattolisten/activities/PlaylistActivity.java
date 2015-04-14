@@ -1,4 +1,4 @@
-package com.afsj.whattolisten;
+package com.afsj.whattolisten.activities;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
+import com.afsj.whattolisten.LastFmService;
+import com.afsj.whattolisten.R;
 import com.afsj.whattolisten.adapters.PlaylistAdapter;
 import com.afsj.whattolisten.data.Contract;
 
