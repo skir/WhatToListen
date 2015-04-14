@@ -17,11 +17,13 @@ public class WtlProvider extends ContentProvider {
 
     static final int HISTORY = 100;
     static final int RESULTS = 101;
+    static final int INFO = 102;
 
     static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_HISTORY,HISTORY);
         uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_RESULTS,RESULTS);
+        uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_INFO,INFO);
 
         return uriMatcher;
     }
@@ -44,6 +46,8 @@ public class WtlProvider extends ContentProvider {
                 return Contract.HistoryEntry.CONTENT_TYPE;
             case RESULTS:
                 return Contract.ResultsEntry.CONTENT_TYPE;
+            case INFO:
+                return Contract.ResultsEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -64,6 +68,15 @@ public class WtlProvider extends ContentProvider {
                 break;
             case RESULTS:
                 retCursor = mOpenHelper.getReadableDatabase().query(Contract.ResultsEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            case INFO:
+                retCursor = mOpenHelper.getReadableDatabase().query(Contract.InfoEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -103,6 +116,14 @@ public class WtlProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
+            case INFO:{
+                long _id = db.insert(Contract.InfoEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = Contract.ResultsEntry.buildUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -126,6 +147,10 @@ public class WtlProvider extends ContentProvider {
             }
             case RESULTS:{
                 id = db.delete(Contract.ResultsEntry.TABLE_NAME, selection,selectionArgs);
+                break;
+            }
+            case INFO:{
+                id = db.delete(Contract.InfoEntry.TABLE_NAME, selection,selectionArgs);
                 break;
             }
             default:

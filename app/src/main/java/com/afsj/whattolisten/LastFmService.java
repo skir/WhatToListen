@@ -66,97 +66,54 @@ public class LastFmService extends IntentService {
             getContentResolver().insert(Contract.HistoryEntry.CONTENT_URI, values);
         }
 
-        HttpURLConnection urlConnection = null;
-        String json = "";
-        try {
-            Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter("method", "tag.search")
-                    .appendQueryParameter("tag", query)
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("format", "json")
-                    .build();
-
-            URL url = new URL(builtUri.toString());
-
-            // Create the request to OpenWeatherMap, and open the connection
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            // Read the input stream into a String
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return;
-            }
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                return;
-            }
-            json = buffer.toString();
-            Log.e("SERVICE result",json);
-            saveData(json);
-        }catch (MalformedURLException e){
-            Log.e("SERVICE",e.toString());
-        }catch (ProtocolException e) {
-            Log.e("SERVICE", e.toString());
-        }catch (IOException e) {
-            Log.e("SERVICE", e.toString());
-        }
+        saveData(get(query, "tag.search",null));
     }
 
     private void getInfo(String tagName){
+        String info = get(tagName,"tag.getinfo",null);
+        String artists = get(tagName,"tag.gettopartists","4");
+        String albums = get(tagName,"tag.gettopalbums","4");
+        saveInfo(info,albums,artists);
+    }
+
+    private String get(String tag, String method, String limit){
         HttpURLConnection urlConnection = null;
         String json = "";
         try {
-            Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter("method", "tag.getinfo")
-                    .appendQueryParameter("tag", tagName)
+            Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
+                    .appendQueryParameter("method", method)
+
+                    .appendQueryParameter("tag", tag)
                     .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("format", "json")
-                    .build();
+                    .appendQueryParameter("format", "json");
+            if(limit != null && limit != "")
+                builder.appendQueryParameter("limit",limit);
+
+            Uri builtUri = builder.build();
 
             URL url = new URL(builtUri.toString());
 
-            // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return;
-            }
+            if (inputStream == null)
+                return "";
+
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
             String line;
             while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
                 buffer.append(line + "\n");
             }
 
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                return;
-            }
+            if (buffer.length() == 0)
+                return"";
+
             json = buffer.toString();
-            Log.e("SERVICE result",json);
+            Log.e("SERVICE result", json);
         }catch (MalformedURLException e){
             Log.e("SERVICE",e.toString());
         }catch (ProtocolException e) {
@@ -164,6 +121,7 @@ public class LastFmService extends IntentService {
         }catch (IOException e) {
             Log.e("SERVICE", e.toString());
         }
+        return json;
     }
 
     private void saveData(String json){
@@ -189,6 +147,24 @@ public class LastFmService extends IntentService {
                 getContentResolver().delete(Contract.ResultsEntry.CONTENT_URI, null, null);
                 getContentResolver().bulkInsert(Contract.ResultsEntry.CONTENT_URI,contentValues);
             }
+        }catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+    }
+
+    private void saveInfo(String jsonInfo,String jsonAlbums, String jsonArtist){
+        try{
+            String summary = (new JSONObject(jsonInfo)).getJSONObject("tag").getJSONObject("wiki").getString("summary");
+            String albums = (new JSONObject(jsonAlbums)).getJSONObject("topalbums").getJSONArray("album").toString();
+            String artists = (new JSONObject(jsonArtist)).getJSONObject("topartists").getJSONArray("artist").toString();
+
+            ContentValues values = new ContentValues();
+            values.put(Contract.InfoEntry.SUMMARY, summary);
+            values.put(Contract.InfoEntry.ALBUMS,albums);
+            values.put(Contract.InfoEntry.ARTISTS,artists);
+
+            getContentResolver().insert(Contract.InfoEntry.CONTENT_URI, values);
         }catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();

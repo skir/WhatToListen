@@ -32,14 +32,22 @@ public class DbHelper extends SQLiteOpenHelper {
                 ResultsEntry.TYPE + " TEXT NOT NULL, " +
                 ResultsEntry.URL + " TEXT NOT NULL );";
 
+        final String SQL_CREATE_INFO_TABLE = "CREATE TABLE " + Contract.InfoEntry.TABLE_NAME + " (" +
+                Contract.InfoEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                Contract.InfoEntry.ALBUMS + " TEXT NOT NULL, " +
+                Contract.InfoEntry.ARTISTS + " TEXT NOT NULL, " +
+                Contract.InfoEntry.SUMMARY + " TEXT NOT NULL );";
+
         sqLiteDatabase.execSQL(SQL_CREATE_HISTORY_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_RESULTS_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_INFO_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + HistoryEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ResultsEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Contract.InfoEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

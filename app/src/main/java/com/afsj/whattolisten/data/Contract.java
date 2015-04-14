@@ -23,6 +23,7 @@ public class Contract {
     // At least, let's hope not.  Don't be that dev, reader.  Don't be that dev.
     public static final String PATH_HISTORY = "history";
     public static final String PATH_RESULTS = "results";
+    public static final String PATH_INFO = "info";
 
     public static final class HistoryEntry implements BaseColumns {
         public static final String TABLE_NAME = PATH_HISTORY;
@@ -53,6 +54,24 @@ public class Contract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_RESULTS;
+
+        public static Uri buildUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
+    public static final class InfoEntry implements BaseColumns{
+        public static final String TABLE_NAME = PATH_INFO;
+
+        public static final String SUMMARY = "summary";
+        public static final String ALBUMS = "albums";
+        public static final String ARTISTS = "artists";
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_INFO).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_INFO;
 
         public static Uri buildUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
