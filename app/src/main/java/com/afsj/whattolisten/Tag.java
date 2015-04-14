@@ -1,5 +1,6 @@
 package com.afsj.whattolisten;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -24,6 +25,7 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
     private Toolbar toolbar;
     private RecyclerView recyclerView;
     private TagAdapter adapterInfo;
+    private Context mContext;
     private int INFO_LOADER = 5;
     private static int transition;
     private Drawable toolbarBackground;
@@ -33,6 +35,8 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tag);
+
+        mContext = this;
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -52,6 +56,15 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         windowWidth = getWindowManager().getDefaultDisplay().getWidth();
 
         adapterInfo = new TagAdapter(this,null,windowWidth,tag);
+        adapterInfo.setPlayClick(new TagAdapter.PlayClick() {
+            @Override
+            public void playClick(String tag) {
+                getContentResolver().delete(Contract.PlaylistEntry.CONTENT_URI, null, null);
+                Intent i = new Intent(mContext,PlaylistActivity.class);
+                i.putExtra(LastFmService.QUERY,tag);
+                mContext.startActivity(i);
+            }
+        });
         recyclerView = ((RecyclerView) findViewById(R.id.cardList));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());

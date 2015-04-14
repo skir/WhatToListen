@@ -42,10 +42,18 @@
             android:name=".Tag"
             android:label="@string/title_activity_tag"
             android:parentActivityName=".ResultsActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
+            android:theme="@style/Theme.AppCompat.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.afsj.whattolisten.MainActivity" />
+        </activity>
+        <activity
+            android:name=".PlaylistActivity"
+            android:label="@string/title_activity_playlist"
+            android:parentActivityName=".Tag" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.afsj.whattolisten.Tag" />
         </activity>
     </application>
 

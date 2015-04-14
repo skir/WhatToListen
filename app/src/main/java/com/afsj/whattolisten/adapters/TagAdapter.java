@@ -37,6 +37,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     private static int windowWidth;
     private static String tag;
     private DataSetObserver mDataSetObserver;
+    private static PlayClick playClick;
     private final int TYPE_HEADER_INFO = 0;
     private final int TYPE_ALBUMS = 1;
     private final int TYPE_ARTISTS = 2;
@@ -51,6 +52,10 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
 //            this.data.moveToFirst();
             info.registerDataSetObserver(mDataSetObserver);
         }
+    }
+
+    public void setPlayClick(PlayClick playClick){
+        this.playClick = playClick;
     }
 
     @Override
@@ -161,10 +166,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             ((ImageButton) v.findViewById(R.id.play)).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intentService = new Intent(mContext,LastFmService.class);
-                    intentService.setAction(LastFmService.RADIO_TUNE);
-                    intentService.putExtra(LastFmService.QUERY,tag);
-                    mContext.startService(intentService);
+                    playClick.playClick(tag);
                 }
             });
         }
@@ -183,5 +185,9 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
 
             title = (TextView) v.findViewById(R.id.title);
         }
+    }
+
+    public interface PlayClick{
+        public void playClick(String tag);
     }
 }
