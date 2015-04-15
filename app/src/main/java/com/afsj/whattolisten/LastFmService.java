@@ -326,7 +326,7 @@ public class LastFmService extends IntentService {
     private boolean isHistoryContains(String query){
         history = getContentResolver().query(Contract.HistoryEntry.CONTENT_URI,
                 new String[]{Contract.HistoryEntry.QUERY},
-                Contract.HistoryEntry.QUERY + " = ?",
+                Contract.HistoryEntry.QUERY + " = ? COLLATE NOCASE",
                 new String[]{query},null);
 
         return history != null && history.getCount() > 0;

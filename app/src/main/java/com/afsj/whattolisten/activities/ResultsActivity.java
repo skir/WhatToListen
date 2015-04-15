@@ -149,7 +149,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
         return new CursorLoader(getBaseContext(),
                 Contract.ResultsEntry.CONTENT_URI,
                 new String[]{Contract.ResultsEntry.NAME, Contract.ResultsEntry.SEARCH_QUERY},
-                Contract.ResultsEntry.SEARCH_QUERY + " = ?",
+                Contract.ResultsEntry.SEARCH_QUERY + " = ? COLLATE NOCASE",
                 new String[]{tag},null);
     }
 
@@ -160,7 +160,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.e("results",String.valueOf(data.getCount()));
+        Log.e("results", String.valueOf(data.getCount()));
         if(data.getCount() == 0)
             search(tag);
         else

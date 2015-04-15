@@ -138,7 +138,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    search(v.getText().toString());
+                    search(v.getText().toString().trim());
                     handled = true;
                 }
                 return handled;
