@@ -38,6 +38,8 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     private Toolbar toolbar;
     private int toolbarOffset = 0;
     private Context mContext;
+    private String tag;
+    private boolean fromHistory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,20 +65,20 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
 
         recyclerView = ((RecyclerView) findViewById(R.id.history));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapterResults);
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0 && toolbar.getHeight() > toolbarOffset) { // go down
-                    if (toolbarOffset + dy <= toolbar.getHeight()) {
+                int toolbarHeight = toolbar.getHeight() + Math.round((float)16 * getApplicationContext().getResources().getDisplayMetrics().density);
+                if (dy > 0 && toolbarHeight > toolbarOffset) { // go down
+                    if (toolbarOffset + dy <= toolbarHeight) {
                         toolbar.setTranslationY(toolbar.getTranslationY() - dy);
                         toolbarOffset += dy;
                     } else {
-                        toolbar.setTranslationY(-toolbar.getHeight());
-                        toolbarOffset = toolbar.getHeight();
+                        toolbar.setTranslationY(-toolbarHeight);
+                        toolbarOffset = toolbarHeight;
                     }
                 }
                 if (dy < 0 && toolbarOffset > 0) {
@@ -93,10 +95,11 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                int toolbarHeight = toolbar.getHeight() + Math.round((float)16 * getApplicationContext().getResources().getDisplayMetrics().density);
                 if (newState == 0) {
-                    if ((double) toolbarOffset > (double) toolbar.getHeight() / 2.0) {
-                        toolbar.animate().translationY(-toolbar.getHeight()).setInterpolator(new AccelerateInterpolator()).start();
-                        toolbarOffset = toolbar.getHeight();
+                    if ((double) toolbarOffset > (double) toolbarHeight / 2.0) {
+                        toolbar.animate().translationY(-toolbarHeight).setInterpolator(new AccelerateInterpolator()).start();
+                        toolbarOffset = toolbarHeight;
                     } else {
                         toolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
                         toolbarOffset = 0;
@@ -119,10 +122,12 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
         });
 
         Intent intent = getIntent();
+        tag = "";
         if(intent.hasExtra(LastFmService.QUERY)) {
-            editText.setText(intent.getStringExtra(LastFmService.QUERY));
-            search(intent.getStringExtra(LastFmService.QUERY), intent.getBooleanExtra(getString(R.string.from_history), false));
+            tag = intent.getStringExtra(LastFmService.QUERY);
+            fromHistory =  intent.getBooleanExtra(getString(R.string.from_history), false);
         }
+        editText.setText(tag);
 
         getSupportLoaderManager().initLoader(RESULTS_LOADER, null, this);
     }
@@ -149,6 +154,11 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(data.getCount() == 0)
+            search(tag, fromHistory);
+        else
+            recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+
         adapterResults.swapCursor(data);
     }
 

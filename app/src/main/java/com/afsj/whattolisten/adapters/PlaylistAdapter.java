@@ -56,7 +56,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if(position > 0 && data != null && data.moveToPosition(position - 1)) {
             ((TrackViewHolder) holder).title.setText(data.getString(data.getColumnIndex(Contract.PlaylistEntry.TITLE)));
             String aritst = data.getString(data.getColumnIndex(Contract.PlaylistEntry.ARTIST));
-            String album = data.getString(data.getColumnIndex(Contract.PlaylistEntry.ARTIST));
+            String album = data.getString(data.getColumnIndex(Contract.PlaylistEntry.ALBUM));
             if(!album.equals(""))
                 aritst += " - " + album;
 

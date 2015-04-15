@@ -9,14 +9,15 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/search_bg"
+        android:background="@drawable/search"
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:transitionName="toolbar"
-        android:layout_marginLeft="-8dp"
-        android:layout_marginRight="-8dp"
-        android:layout_marginTop="-8dp"
-        android:animateLayoutChanges="true">
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:animateLayoutChanges="true"
+        android:transitionGroup="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,10 +31,10 @@
                 android:id="@+id/searchQuery"
                 android:background="@null"
                 android:textColor="@color/abc_primary_text_material_light"
-                android:text="text"
                 android:singleLine="true"
                 android:imeOptions="actionSearch"
-                android:transitionName="search" />
+                android:transitionName="search"
+                android:hint="@string/what_to_listen" />
         </LinearLayout>
 
     </android.support.v7.widget.Toolbar>

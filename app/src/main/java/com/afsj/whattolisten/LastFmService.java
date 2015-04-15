@@ -262,7 +262,6 @@ public class LastFmService extends IntentService {
                 ContentValues[] contentValues = new ContentValues[valuesVector.size()];
                 valuesVector.toArray(contentValues);
 
-                getContentResolver().delete(Contract.ResultsEntry.CONTENT_URI, null, null);
                 getContentResolver().bulkInsert(Contract.ResultsEntry.CONTENT_URI,contentValues);
             }
         }catch (JSONException e) {
@@ -301,6 +300,7 @@ public class LastFmService extends IntentService {
                 values.put(Contract.PlaylistEntry.TITLE, track.getString("title"));
                 values.put(Contract.PlaylistEntry.ALBUM, track.getString("album"));
                 values.put(Contract.PlaylistEntry.ARTIST, track.getString("creator"));
+                //TODO get artist image
                 values.put(Contract.PlaylistEntry.LOCATION,track.getString("location"));
 
                 valuesVector.add(values);

@@ -57,30 +57,33 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        final EditText editText = (EditText) findViewById(R.id.searchQuery);
+
         adapterHistory = new HistoryAdapter(null);
         adapterHistory.setListItemClick(new HistoryAdapter.ListItemClick() {
             @Override
             public void listItemClick(String query) {
+                editText.setText(query);
                 search(query,true);
             }
         });
 
         recyclerView = ((RecyclerView) findViewById(R.id.history));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapterHistory);
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0 && toolbar.getHeight() > toolbarOffset) { // go down
-                    if (toolbarOffset + dy <= toolbar.getHeight()) {
+                int toolbarHeight = toolbar.getHeight() + Math.round((float)16 * getApplicationContext().getResources().getDisplayMetrics().density);
+                if (dy > 0 && toolbarHeight > toolbarOffset) { // go down
+                    if (toolbarOffset + dy <= toolbarHeight) {
                         toolbar.setTranslationY(toolbar.getTranslationY() - dy);
                         toolbarOffset += dy;
                     } else {
-                        toolbar.setTranslationY(-toolbar.getHeight());
-                        toolbarOffset = toolbar.getHeight();
+                        toolbar.setTranslationY(-toolbarHeight);
+                        toolbarOffset = toolbarHeight;
                     }
                 }
                 if (dy < 0 && toolbarOffset > 0) {
@@ -97,10 +100,11 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                int toolbarHeight = toolbar.getHeight() + Math.round((float)16 * getApplicationContext().getResources().getDisplayMetrics().density);
                 if (newState == 0) {
-                    if ((double) toolbarOffset > (double) toolbar.getHeight() / 2.0) {
-                        toolbar.animate().translationY(-toolbar.getHeight()).setInterpolator(new AccelerateInterpolator()).start();
-                        toolbarOffset = toolbar.getHeight();
+                    if ((double) toolbarOffset > (double) toolbarHeight / 2.0) {
+                        toolbar.animate().translationY(-toolbarHeight).setInterpolator(new AccelerateInterpolator()).start();
+                        toolbarOffset = toolbarHeight;
                     } else {
                         toolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
                         toolbarOffset = 0;
@@ -144,6 +148,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     }
 
     private void search(String searchQuery, boolean fromHistory){
+        getContentResolver().delete(Contract.ResultsEntry.CONTENT_URI, null, null);
         Intent intent = new Intent(this, ResultsActivity.class);
         intent.putExtra(LastFmService.QUERY,searchQuery);
         intent.putExtra(getString(R.string.from_history),fromHistory);
@@ -166,29 +171,32 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(data.getCount() > 0)
+            recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+
         adapterHistory.swapCursor(data);
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        MenuInflater inflater = new MenuInflater(this);
-        inflater.inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        MenuInflater inflater = new MenuInflater(this);
+//        inflater.inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 }

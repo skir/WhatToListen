@@ -27,6 +27,7 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
     private RecyclerView recyclerView;
     private TagAdapter adapterInfo;
     private Context mContext;
+    private String tag;
     private int INFO_LOADER = 5;
     private static int transition;
     private Drawable toolbarBackground;
@@ -43,7 +44,7 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        String tag = "";
+        tag = "";
         Intent intent = getIntent();
         if(intent.hasExtra(LastFmService.QUERY)) {
             getSupportActionBar().setTitle(intent.getStringExtra(LastFmService.QUERY));
@@ -54,7 +55,12 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         toolbarBackground.setAlpha(0);
         toolbar.setBackgroundDrawable(toolbarBackground);
         transition = 0;
-        windowWidth = getWindowManager().getDefaultDisplay().getWidth();
+        int width = getWindowManager().getDefaultDisplay().getWidth();
+        int heidht = getWindowManager().getDefaultDisplay().getHeight();
+        if(width < heidht)
+            windowWidth = width;
+        else
+            windowWidth = heidht;
 
         adapterInfo = new TagAdapter(this,null,windowWidth,tag);
         adapterInfo.setPlayClick(new TagAdapter.PlayClick() {
@@ -85,9 +91,9 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
             }
         });
 
-        getInfo(tag);
 
         getSupportLoaderManager().initLoader(INFO_LOADER, null, this);
+//        getInfo(tag);
     }
 
     private void getInfo(String tagName){
@@ -115,6 +121,8 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(data.getCount() == 0)
+            getInfo(tag);
         adapterInfo.swapCursor(data);
     }
 }

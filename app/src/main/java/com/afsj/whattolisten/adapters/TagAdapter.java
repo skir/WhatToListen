@@ -7,6 +7,7 @@ import android.database.DataSetObserver;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -92,7 +93,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             info.moveToFirst();
             switch (position) {
                 case 0:
-                    ((InfoViewHolder) holder).mTextView.setText(Html.fromHtml(info.getString(info.getColumnIndex(Contract.InfoEntry.SUMMARY))));
+                    ((InfoViewHolder) holder).info.setText(Html.fromHtml(info.getString(info.getColumnIndex(Contract.InfoEntry.SUMMARY))));
                     try {
                         JSONArray array = new JSONArray(info.getString(info.getColumnIndex(Contract.InfoEntry.ARTISTS)));
                         JSONObject item = array.getJSONObject(1);
@@ -156,11 +157,12 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     }
 
     public static class InfoViewHolder extends RecyclerView.ViewHolder  {
-        public TextView mTextView;
+        public TextView info;
         public ImageView image;
         public InfoViewHolder(View v) {
             super(v);
-            mTextView = (TextView) v.findViewById(R.id.info);
+            info = (TextView) v.findViewById(R.id.info);
+            info.setMovementMethod(LinkMovementMethod.getInstance());
             image = (ImageView) v.findViewById(R.id.image);
             ((RelativeLayout) v.findViewById(R.id.layout)).getLayoutParams().height = 2 * windowWidth / 3;
             ((ImageButton) v.findViewById(R.id.play)).setOnClickListener(new View.OnClickListener() {
