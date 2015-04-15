@@ -149,7 +149,7 @@ public class WtlProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
-        db.close();
+//        db.close();
         return returnUri;
     }
 

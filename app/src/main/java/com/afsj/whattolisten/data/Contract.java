@@ -48,7 +48,7 @@ public class Contract {
 
         public static final String NAME = "name";
         public static final String URL = "url";
-        public static final String TYPE = "type";
+        public static final String SEARCH_QUERY = "search_query";
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_RESULTS).build();
@@ -67,6 +67,7 @@ public class Contract {
         public static final String SUMMARY = "summary";
         public static final String ALBUMS = "albums";
         public static final String ARTISTS = "artists";
+        public static final String TAG = "tag";
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_INFO).build();
@@ -86,6 +87,7 @@ public class Contract {
         public static final String LOCATION = "location";
         public static final String ALBUM = "album";
         public static final String ARTIST = "artist";
+        public static final String TAG = "tag";
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYLIST).build();

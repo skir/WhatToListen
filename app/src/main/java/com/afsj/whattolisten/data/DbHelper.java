@@ -29,13 +29,14 @@ public class DbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_RESULTS_TABLE = "CREATE TABLE " + ResultsEntry.TABLE_NAME + " (" +
                 ResultsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 ResultsEntry.NAME + " TEXT NOT NULL, " +
-                ResultsEntry.TYPE + " TEXT NOT NULL, " +
+                ResultsEntry.SEARCH_QUERY + " TEXT NOT NULL, " +
                 ResultsEntry.URL + " TEXT NOT NULL );";
 
         final String SQL_CREATE_INFO_TABLE = "CREATE TABLE " + Contract.InfoEntry.TABLE_NAME + " (" +
                 Contract.InfoEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 Contract.InfoEntry.ALBUMS + " TEXT NOT NULL, " +
                 Contract.InfoEntry.ARTISTS + " TEXT NOT NULL, " +
+                Contract.InfoEntry.TAG + " TEXT NOT NULL, " +
                 Contract.InfoEntry.SUMMARY + " TEXT NOT NULL );";
 
         final String SQL_CREATE_PLAYLIST_TABLE = "CREATE TABLE " + Contract.PlaylistEntry.TABLE_NAME + " (" +
@@ -43,6 +44,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 Contract.PlaylistEntry.LOCATION + " TEXT NOT NULL, " +
                 Contract.PlaylistEntry.TITLE + " TEXT NOT NULL, " +
                 Contract.PlaylistEntry.ALBUM + " TEXT NOT NULL, " +
+                Contract.PlaylistEntry.TAG + " TEXT NOT NULL, " +
                 Contract.PlaylistEntry.ARTIST+ " TEXT NOT NULL );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_HISTORY_TABLE);

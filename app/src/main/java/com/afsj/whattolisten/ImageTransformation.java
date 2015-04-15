@@ -14,7 +14,7 @@ import com.squareup.picasso.Transformation;
 public class ImageTransformation implements Transformation {
     @Override
     public Bitmap transform(Bitmap source) {
-        int brightness = -50;
+        int brightness = -70;
         ColorMatrix cm = new ColorMatrix(new float[]
                 {
                         1, 0, 0, 0, brightness,

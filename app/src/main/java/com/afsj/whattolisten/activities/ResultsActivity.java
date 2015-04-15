@@ -1,5 +1,6 @@
 package com.afsj.whattolisten.activities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -13,12 +14,14 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -39,7 +42,6 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     private int toolbarOffset = 0;
     private Context mContext;
     private String tag;
-    private boolean fromHistory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +116,9 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    search(v.getText().toString(), false);
+//                    getContentResolver().delete(Contract.ResultsEntry.CONTENT_URI, null, null);
+                    search(v.getText().toString());
+                    ((InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE)).toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                     handled = true;
                 }
                 return handled;
@@ -125,26 +129,28 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
         tag = "";
         if(intent.hasExtra(LastFmService.QUERY)) {
             tag = intent.getStringExtra(LastFmService.QUERY);
-            fromHistory =  intent.getBooleanExtra(getString(R.string.from_history), false);
         }
         editText.setText(tag);
 
         getSupportLoaderManager().initLoader(RESULTS_LOADER, null, this);
     }
 
-    private void search(String query,boolean fromHistory){
+    private void search(String query){
+
         Intent intentService = new Intent(this,LastFmService.class);
         intentService.setAction(LastFmService.SEARCH);
         intentService.putExtra(LastFmService.QUERY,query);
-        intentService.putExtra(getString(R.string.from_history),fromHistory);
         startService(intentService);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args){
+        Log.e("tag",tag);
         return new CursorLoader(getBaseContext(),
                 Contract.ResultsEntry.CONTENT_URI,
-                new String[]{Contract.ResultsEntry.NAME},null,null,null);
+                new String[]{Contract.ResultsEntry.NAME, Contract.ResultsEntry.SEARCH_QUERY},
+                Contract.ResultsEntry.SEARCH_QUERY + " = ?",
+                new String[]{tag},null);
     }
 
     @Override
@@ -154,8 +160,9 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.e("results",String.valueOf(data.getCount()));
         if(data.getCount() == 0)
-            search(tag, fromHistory);
+            search(tag);
         else
             recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 

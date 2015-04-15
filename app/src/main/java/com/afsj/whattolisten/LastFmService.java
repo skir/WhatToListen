@@ -3,6 +3,7 @@ package com.afsj.whattolisten;
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
@@ -22,6 +23,8 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class LastFmService extends IntentService {
@@ -40,39 +43,36 @@ public class LastFmService extends IntentService {
     private static final String API_SECRET = "2b3e2099eeb8608316f1ed8e78f311ba";
     private static final String sk = "e3ce21a934937f14220bf16ff1386e3b";
 
-    private static boolean fromHistory = false;
+    private static List<String> queryList;
+    private String query;
+    private Cursor history;
 
     public LastFmService() {
         super("LastFmService");
+        queryList = new ArrayList<>();
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
+        if (intent != null && intent.hasExtra(QUERY) && !queryList.contains(intent.getStringExtra(QUERY))) {
+            query = intent.getStringExtra(QUERY);
+            queryList.add(query);
+            Log.e("Service",query);
             final String action = intent.getAction();
             switch (action){
                 case SEARCH:
-                    if(intent.hasExtra(QUERY))
-                        fromHistory = intent.getBooleanExtra(getString(R.string.from_history),false);
-                        search(intent.getStringExtra(QUERY));
+                        search(query);
                     break;
                 case INFO:
-                    if(intent.hasExtra(QUERY))
-                        getInfo(intent.getStringExtra(QUERY));
+                        getInfo(query);
                     break;
                 case RADIO_TUNE:
-                    if(intent.hasExtra(QUERY))
-                        getPlaylist(intent.getStringExtra(QUERY));
+                        getPlaylist(query);
             }
         }
     }
 
     private void search(String query){
-        if(!fromHistory){
-            ContentValues values = new ContentValues();
-            values.put(Contract.HistoryEntry.QUERY, query);
-            getContentResolver().insert(Contract.HistoryEntry.CONTENT_URI, values);
-        }
 
         saveData(get(query, "tag.search", null));
     }
@@ -253,7 +253,7 @@ public class LastFmService extends IntentService {
                 ContentValues values = new ContentValues();
                 values.put(Contract.ResultsEntry.NAME,tag.getString("name"));
                 values.put(Contract.ResultsEntry.URL,tag.getString("url"));
-                values.put(Contract.ResultsEntry.TYPE,"tag");
+                values.put(Contract.ResultsEntry.SEARCH_QUERY,query);
 
                 valuesVector.add(values);
             }
@@ -268,6 +268,8 @@ public class LastFmService extends IntentService {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
+        saveQuery();
+        queryList.remove(query);
     }
 
     private void saveInfo(String jsonInfo,String jsonAlbums, String jsonArtist){
@@ -286,6 +288,7 @@ public class LastFmService extends IntentService {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
+        queryList.remove(query);
     }
 
     private void savePlaylist(String playlist){
@@ -316,6 +319,24 @@ public class LastFmService extends IntentService {
         }catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
+        }
+        queryList.remove(query);
+    }
+
+    private boolean isHistoryContains(String query){
+        history = getContentResolver().query(Contract.HistoryEntry.CONTENT_URI,
+                new String[]{Contract.HistoryEntry.QUERY},
+                Contract.HistoryEntry.QUERY + " = ?",
+                new String[]{query},null);
+
+        return history != null && history.getCount() > 0;
+    }
+
+    private void saveQuery(){
+        if(!isHistoryContains(query)){
+            ContentValues values = new ContentValues();
+            values.put(Contract.HistoryEntry.QUERY, query);
+            getContentResolver().insert(Contract.HistoryEntry.CONTENT_URI, values);
         }
     }
 

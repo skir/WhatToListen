@@ -1,7 +1,9 @@
 package com.afsj.whattolisten.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
@@ -13,6 +15,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,6 +47,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     private HistoryAdapter adapterHistory;
     private RecyclerView recyclerView;
     private Toolbar toolbar;
+    private Cursor history;
     private int toolbarOffset = 0;
 
     @Override
@@ -64,7 +68,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             @Override
             public void listItemClick(String query) {
                 editText.setText(query);
-                search(query,true);
+                search(query);
             }
         });
 
@@ -121,15 +125,12 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
                 .withHeader(R.layout.drawer_header)
                 .withDrawerWidthDp(240)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIcon(FontAwesome.Icon.faw_home).withBadge("99").withIdentifier(1),
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_free_play).withIcon(FontAwesome.Icon.faw_gamepad),
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_custom).withIcon(FontAwesome.Icon.faw_eye).withBadge("6").withIdentifier(2),
                         new SectionDrawerItem().withName(R.string.drawer_item_settings),
                         new SecondaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_cog),
                         new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIcon(FontAwesome.Icon.faw_question).setEnabled(false),
                         new DividerDrawerItem(),
                         new SecondaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(FontAwesome.Icon.faw_github).withBadge("12+").withIdentifier(1)
-                ).build();;
+                ).build();
 
 
         ((EditText) findViewById(R.id.searchQuery)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -137,7 +138,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    search(v.getText().toString(),false);
+                    search(v.getText().toString());
                     handled = true;
                 }
                 return handled;
@@ -147,11 +148,9 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         getSupportLoaderManager().initLoader(HISTORY_LOADER, null, this);
     }
 
-    private void search(String searchQuery, boolean fromHistory){
-        getContentResolver().delete(Contract.ResultsEntry.CONTENT_URI, null, null);
+    private void search(String searchQuery){
         Intent intent = new Intent(this, ResultsActivity.class);
-        intent.putExtra(LastFmService.QUERY,searchQuery);
-        intent.putExtra(getString(R.string.from_history),fromHistory);
+        intent.putExtra(LastFmService.QUERY, searchQuery);
 //        getWindow().setSharedElementEnterTransition(new ChangeImageTransform());
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, toolbar, "toolbar");
         ActivityCompat.startActivity(this, intent, options.toBundle());
@@ -171,6 +170,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        history = data;
         if(data.getCount() > 0)
             recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
