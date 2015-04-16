@@ -41,7 +41,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     private Toolbar toolbar;
     private int toolbarOffset = 0;
     private Context mContext;
-    private String tag;
+    private String tag = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +126,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
         });
 
         Intent intent = getIntent();
-        tag = "";
+//        tag = "";
         if(intent.hasExtra(LastFmService.QUERY)) {
             tag = intent.getStringExtra(LastFmService.QUERY);
         }
@@ -145,7 +145,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args){
-        Log.e("tag",tag);
+        Log.e("tag", tag);
         return new CursorLoader(getBaseContext(),
                 Contract.ResultsEntry.CONTENT_URI,
                 new String[]{Contract.ResultsEntry.NAME, Contract.ResultsEntry.SEARCH_QUERY},
@@ -176,24 +176,38 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    public void onSaveInstanceState(Bundle state){
+        Log.e("onSaveInstanceState",tag);
+        state.putString("tag", tag);
+        super.onSaveInstanceState(state);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    public void onRestoreInstanceState(Bundle state){
+        tag = state.getString("tag");
+        Log.e("onRestoreInstanceState",tag);
+        super.onRestoreInstanceState(state);
     }
+//
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 }

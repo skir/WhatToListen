@@ -127,4 +127,18 @@ public class PlaylistActivity extends ActionBarActivity implements LoaderManager
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapterPlaylist.swapCursor(data);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int itemId = item.getItemId();
+        switch (itemId) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+
+        }
+
+        return true;
+    }
 }

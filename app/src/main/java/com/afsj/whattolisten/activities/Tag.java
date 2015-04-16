@@ -13,6 +13,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
 import com.afsj.whattolisten.LastFmService;
 import com.afsj.whattolisten.R;
@@ -124,5 +125,19 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         if(data.getCount() == 0)
             getInfo(tag);
         adapterInfo.swapCursor(data);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int itemId = item.getItemId();
+        switch (itemId) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+
+        }
+
+        return true;
     }
 }
