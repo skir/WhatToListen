@@ -58,7 +58,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
         adapterResults.setListItemClick(new ResultsAdapter.ListItemClick() {
             @Override
             public void listItemClick(String query) {
-                getContentResolver().delete(Contract.InfoEntry.CONTENT_URI, null, null);
+//                getContentResolver().delete(Contract.InfoEntry.CONTENT_URI, null, null);
                 Intent intent = new Intent(mContext,Tag.class);
                 intent.putExtra(LastFmService.QUERY,query);
                 mContext.startActivity(intent);

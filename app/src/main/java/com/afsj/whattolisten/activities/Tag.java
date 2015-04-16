@@ -13,6 +13,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.afsj.whattolisten.LastFmService;
@@ -67,7 +68,7 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         adapterInfo.setPlayClick(new TagAdapter.PlayClick() {
             @Override
             public void playClick(String tag) {
-                getContentResolver().delete(Contract.PlaylistEntry.CONTENT_URI, null, null);
+//                getContentResolver().delete(Contract.PlaylistEntry.CONTENT_URI, null, null);
                 Intent i = new Intent(mContext,PlaylistActivity.class);
                 i.putExtra(LastFmService.QUERY,tag);
                 mContext.startActivity(i);
@@ -107,12 +108,14 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args){
+        Log.e("TAG",tag);
         return new CursorLoader(getBaseContext(),
                 Contract.InfoEntry.CONTENT_URI,
                 new String[]{Contract.InfoEntry.SUMMARY,
                         Contract.InfoEntry.ARTISTS,
                         Contract.InfoEntry.ALBUMS},
-                null,null,null);
+                Contract.InfoEntry.TAG + " = ?",
+                new String[]{tag},null);
     }
 
     @Override

@@ -30,6 +30,7 @@ public class PlaylistActivity extends ActionBarActivity implements LoaderManager
     private PlaylistAdapter adapterPlaylist;
     private int PLAYLIST_LOADER = 42;
     private int toolbarOffset = 0;
+    private String tag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,7 @@ public class PlaylistActivity extends ActionBarActivity implements LoaderManager
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        String tag = "";
+        tag = "";
         Intent intent = getIntent();
         if(intent.hasExtra(LastFmService.QUERY)) {
             getSupportActionBar().setTitle(intent.getStringExtra(LastFmService.QUERY));
@@ -99,12 +100,14 @@ public class PlaylistActivity extends ActionBarActivity implements LoaderManager
             }
         });
 
+        getSupportLoaderManager().initLoader(PLAYLIST_LOADER, null, this);
+    }
+
+    private void radioTune(){
         Intent intentService = new Intent(this, LastFmService.class);
         intentService.setAction(LastFmService.RADIO_TUNE);
         intentService.putExtra(LastFmService.QUERY, tag);
         startService(intentService);
-
-        getSupportLoaderManager().initLoader(PLAYLIST_LOADER, null, this);
     }
 
     @Override
@@ -115,7 +118,8 @@ public class PlaylistActivity extends ActionBarActivity implements LoaderManager
                         Contract.PlaylistEntry.ARTIST,
                         Contract.PlaylistEntry.ALBUM,
                         Contract.PlaylistEntry.LOCATION},
-                null,null,null);
+                Contract.PlaylistEntry.TAG + " = ?",
+                new String[]{tag},null);
     }
 
     @Override
@@ -125,6 +129,8 @@ public class PlaylistActivity extends ActionBarActivity implements LoaderManager
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(data.getCount() == 0)
+            radioTune();
         adapterPlaylist.swapCursor(data);
     }
 
