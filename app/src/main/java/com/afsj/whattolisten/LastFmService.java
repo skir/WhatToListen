@@ -282,6 +282,7 @@ public class LastFmService extends IntentService {
             values.put(Contract.InfoEntry.SUMMARY, summary);
             values.put(Contract.InfoEntry.ALBUMS,albums);
             values.put(Contract.InfoEntry.ARTISTS,artists);
+            values.put(Contract.InfoEntry.TAG,query);
 
             getContentResolver().insert(Contract.InfoEntry.CONTENT_URI, values);
         }catch (JSONException e) {
@@ -305,6 +306,7 @@ public class LastFmService extends IntentService {
                 values.put(Contract.PlaylistEntry.ARTIST, track.getString("creator"));
                 //TODO get artist image
                 values.put(Contract.PlaylistEntry.LOCATION,track.getString("location"));
+                values.put(Contract.PlaylistEntry.TAG,query);
 
                 valuesVector.add(values);
             }
