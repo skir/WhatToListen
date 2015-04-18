@@ -169,7 +169,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
                 int toolbarHeight = searchBox.getHeight() + Math.round((float) 16 * getApplicationContext().getResources().getDisplayMetrics().density);
                 if (newState == 0) {
                     if ((double) searchBarOffset > (double) toolbarHeight / 2.0) {
-                        if(scrollPosition >= toolbarHeight)
+                        if (scrollPosition >= toolbarHeight)
                             searchBarOffset = toolbarHeight;
                         else
                             searchBarOffset = scrollPosition;
@@ -239,6 +239,13 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
         startService(intentService);
     }
 
+    private void getTopTags(){
+        Intent intentService = new Intent(this,LastFmService.class);
+        intentService.setAction(LastFmService.TOP_TAGS);
+        intentService.putExtra(LastFmService.QUERY,"");
+        startService(intentService);
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args){
         Log.e("tag", tag);
@@ -249,10 +256,12 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
                     Contract.ResultsEntry.SEARCH_QUERY + " = ? COLLATE NOCASE",
                     new String[]{tag},null);
 
-        else //TODO suggestions?
+        else
             return new CursorLoader(getBaseContext(),
-                    Contract.HistoryEntry.CONTENT_URI,
-                    new String[]{Contract.HistoryEntry.QUERY, Contract.HistoryEntry._ID}, null, null, Contract.HistoryEntry._ID + " DESC");
+                    Contract.ResultsEntry.CONTENT_URI,
+                    new String[]{Contract.ResultsEntry.NAME, Contract.ResultsEntry.SEARCH_QUERY},
+                    Contract.ResultsEntry.SEARCH_QUERY + " = ? COLLATE NOCASE",
+                    new String[]{LastFmService.TOP_TAGS},null);
     }
 
     @Override
@@ -264,7 +273,8 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.e("results", String.valueOf(data.getCount()));
         if(data.getCount() == 0) {
-            search(tag);
+            if(isResults) search(tag);
+            else getTopTags();
             recyclerView.removeItemDecoration(dividerItemDecoration);
         }else {
             searchBox.showLoading(false);

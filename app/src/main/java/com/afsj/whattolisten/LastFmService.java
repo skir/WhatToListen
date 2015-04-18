@@ -35,6 +35,7 @@ public class LastFmService extends IntentService {
     public static final String QUERY = "query";
     public static final String INFO = "info";
     public static final String RADIO_TUNE = "radio_tune";
+    public static final String TOP_TAGS = "top_tags";
 
     private static final String BASE_URL = "http://ws.audioscrobbler.com/2.0/?";
     private static final String RADIO_URL = "http://ext.last.fm/2.0/";
@@ -61,13 +62,16 @@ public class LastFmService extends IntentService {
             final String action = intent.getAction();
             switch (action){
                 case SEARCH:
-                        search(query);
+                    search(query);
                     break;
                 case INFO:
-                        getInfo(query);
+                    getInfo(query);
                     break;
                 case RADIO_TUNE:
-                        getPlaylist(query);
+                    getPlaylist(query);
+                    break;
+                case TOP_TAGS:
+                    getTopTags();
             }
         }
     }
@@ -193,15 +197,20 @@ public class LastFmService extends IntentService {
         return json;
     }
 
+    private void getTopTags(){
+        saveTopTags(get(null,"tag.getTopTags","30"));
+    }
+
     private String get(String tag, String method, String limit){
         HttpURLConnection urlConnection = null;
         String json = "";
         try {
             Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
                     .appendQueryParameter("method", method)
-                    .appendQueryParameter("tag", tag)
                     .appendQueryParameter("api_key", API_KEY)
                     .appendQueryParameter("format", "json");
+            if(tag != null)
+                builder.appendQueryParameter("tag", tag);
             if(limit != null && limit != "")
                 builder.appendQueryParameter("limit",limit);
 
@@ -317,6 +326,35 @@ public class LastFmService extends IntentService {
 
                 getContentResolver().delete(Contract.PlaylistEntry.CONTENT_URI, null, null);
                 getContentResolver().bulkInsert(Contract.PlaylistEntry.CONTENT_URI,contentValues);
+            }
+        }catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+        queryList.remove(query);
+    }
+
+    private void saveTopTags(String json){
+        try{
+            JSONObject data = new JSONObject(json);
+            JSONArray tags = data.getJSONObject("toptags").getJSONArray("tag");
+            Vector<ContentValues> valuesVector = new Vector<>(tags.length());
+
+            for(int i = 0; i < tags.length(); i++){
+                JSONObject tag = tags.getJSONObject(i);
+                ContentValues values = new ContentValues();
+                values.put(Contract.ResultsEntry.NAME,tag.getString("name"));
+                values.put(Contract.ResultsEntry.URL,tag.getString("url"));
+                values.put(Contract.ResultsEntry.SEARCH_QUERY,TOP_TAGS);
+
+                valuesVector.add(values);
+            }
+
+            if(valuesVector.size() > 0){
+                ContentValues[] contentValues = new ContentValues[valuesVector.size()];
+                valuesVector.toArray(contentValues);
+
+                getContentResolver().bulkInsert(Contract.ResultsEntry.CONTENT_URI,contentValues);
             }
         }catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);

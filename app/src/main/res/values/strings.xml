@@ -23,5 +23,6 @@
     <string name="albums">Top Albums</string>
     <string name="artists">Top Artists</string>
     <string name="what_to_listen">What to Listen</string>
+    <string name="top_tags">Top 250 Tags</string>
     <string name="title_activity_playlist">PlaylistActivity</string>
 </resources>
