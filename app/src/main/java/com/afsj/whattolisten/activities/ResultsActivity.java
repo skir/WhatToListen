@@ -48,11 +48,13 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     private SearchBox searchBox;
     private MaterialMenuView materialMenuView;
     private int searchBarOffset = 0;
+    private int scrollPosition = 0;
     private Context mContext;
     private DrawerLayout drawerLayout;
     private Drawer.Result drawer;
     private boolean isDrawerOpened = false;
     private String tag = "";
+    private boolean isResults = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,12 +70,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
 
         setUpDrawer();
 
-        Intent intent = getIntent();
-//        tag = "";
-        if(intent.hasExtra(LastFmService.QUERY)) {
-            tag = intent.getStringExtra(LastFmService.QUERY);
-        }
-        searchBox.setLogoText(tag);
+        searchBox.setLogoText(getString(R.string.what_to_listen));
 
         getSupportLoaderManager().initLoader(RESULTS_LOADER, null, this);
     }
@@ -111,8 +108,9 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
             public void onSearch(String searchTerm) {
 //                search(searchTerm);
                 tag = searchTerm;
-                getSupportLoaderManager().restartLoader(RESULTS_LOADER, null, ResultsActivity.this);
+                isResults = true;
                 searchBox.showLoading(true);
+                getSupportLoaderManager().restartLoader(RESULTS_LOADER, null, ResultsActivity.this);
             }
 
             @Override
@@ -143,6 +141,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                scrollPosition += dy;
                 int toolbarHeight = searchBox.getHeight() + Math.round((float) 16 * getApplicationContext().getResources().getDisplayMetrics().density);
                 if (dy > 0 && toolbarHeight > searchBarOffset) { // go down
                     if (searchBarOffset + dy <= toolbarHeight) {
@@ -170,12 +169,14 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
                 int toolbarHeight = searchBox.getHeight() + Math.round((float) 16 * getApplicationContext().getResources().getDisplayMetrics().density);
                 if (newState == 0) {
                     if ((double) searchBarOffset > (double) toolbarHeight / 2.0) {
-                        searchBox.animate().translationY(-toolbarHeight).setInterpolator(new AccelerateInterpolator()).start();
-                        searchBarOffset = toolbarHeight;
-                    } else {
-                        searchBox.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
+                        if(scrollPosition >= toolbarHeight)
+                            searchBarOffset = toolbarHeight;
+                        else
+                            searchBarOffset = scrollPosition;
+                    } else
                         searchBarOffset = 0;
-                    }
+
+                    searchBox.animate().translationY(-searchBarOffset).setInterpolator(new DecelerateInterpolator()).start();
                 }
             }
         });
@@ -241,11 +242,17 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args){
         Log.e("tag", tag);
-        return new CursorLoader(getBaseContext(),
-                Contract.ResultsEntry.CONTENT_URI,
-                new String[]{Contract.ResultsEntry.NAME, Contract.ResultsEntry.SEARCH_QUERY},
-                Contract.ResultsEntry.SEARCH_QUERY + " = ? COLLATE NOCASE",
-                new String[]{tag},null);
+        if(isResults)
+            return new CursorLoader(getBaseContext(),
+                    Contract.ResultsEntry.CONTENT_URI,
+                    new String[]{Contract.ResultsEntry.NAME, Contract.ResultsEntry.SEARCH_QUERY},
+                    Contract.ResultsEntry.SEARCH_QUERY + " = ? COLLATE NOCASE",
+                    new String[]{tag},null);
+
+        else //TODO suggestions?
+            return new CursorLoader(getBaseContext(),
+                    Contract.HistoryEntry.CONTENT_URI,
+                    new String[]{Contract.HistoryEntry.QUERY, Contract.HistoryEntry._ID}, null, null, Contract.HistoryEntry._ID + " DESC");
     }
 
     @Override
