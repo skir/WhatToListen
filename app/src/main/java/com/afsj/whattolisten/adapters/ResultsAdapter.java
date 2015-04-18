@@ -4,11 +4,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afsj.whattolisten.R;
@@ -22,9 +20,10 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private DataSetObserver mDataSetObserver;
     private static Context mContext;
     private static ListItemClick listItemClick;
-    private final int TYPE_HISTORY_ITEM = 1;
+    private final int TYPE_RESULTS_ITEM = 1;
     private final int TYPE_EMPTY = 0;
     private final int TYPE_HEADER = 2;
+    private final int TYPE_HISTORY_ITEM = 3;
 
     public ResultsAdapter(Context context,Cursor data){
         this.data = data;
@@ -45,9 +44,12 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         switch (viewType){
             case TYPE_EMPTY:
                 return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item_empty, parent, false));
+            case TYPE_RESULTS_ITEM:
+                View results_item = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_tag, parent, false);
+                return new ResultsViewHolder(results_item);
             case TYPE_HISTORY_ITEM:
-                View history_item = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_tag, parent, false);
-                return new ResultsViewHolder(history_item);
+                View history_item = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item, parent, false);
+                return new HistoryViewHolder(history_item);
             case TYPE_HEADER:
                 return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.header, parent, false));
         }
@@ -59,8 +61,11 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public int getItemViewType(int position) {
         if(position == 0)
             return TYPE_HEADER;
-        if(data != null && data.getCount() > 0)
+        if(data != null && data.getCount() > 0) {
+            if(data.getColumnIndex(Contract.HistoryEntry.QUERY) >= 0)
                 return TYPE_HISTORY_ITEM;
+            return TYPE_RESULTS_ITEM;
+        }
         return TYPE_EMPTY;
     }
 
@@ -68,7 +73,13 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 //        Log.e("onBind", String.valueOf(position));
         if(position > 0 && data != null && data.moveToPosition(position - 1)) {
-            ((ResultsViewHolder) holder).mTextView.setText(data.getString(data.getColumnIndex(Contract.ResultsEntry.NAME)));
+            switch (getItemViewType(position)) {
+                case TYPE_RESULTS_ITEM:
+                    ((ResultsViewHolder) holder).mTextView.setText(data.getString(data.getColumnIndex(Contract.ResultsEntry.NAME)));
+                    break;
+                case TYPE_HISTORY_ITEM:
+                    ((HistoryViewHolder) holder).mTextView.setText(data.getString(data.getColumnIndex(Contract.HistoryEntry.QUERY)));
+            }
 //            data.moveToNext();
         }
 
@@ -123,6 +134,20 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mTextView = ((TextView) v.findViewById(R.id.query));
             v.setOnClickListener(this);
 //            ((ImageView) v.findViewById(R.id.list_item_icon)).setImageDrawable(mContext.getDrawable(R.drawable.ic_action_maps_local_offer));
+        }
+
+        @Override
+        public void onClick(View v) {
+            listItemClick.listItemClick(mTextView.getText().toString());
+        }
+    }
+
+    public static class HistoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
+        public TextView mTextView;
+        public HistoryViewHolder(View v) {
+            super(v);
+            mTextView = ((TextView) v.findViewById(R.id.query));
+            v.setOnClickListener(this);
         }
 
         @Override
