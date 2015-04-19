@@ -74,6 +74,16 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
                 mContext.startActivity(i);
             }
         });
+        adapterInfo.setTagCardItemClick(new TagAdapter.TagCardItemClick() {
+            @Override
+            public void tagCardItemClick(String mbid, int type) {
+                Intent intentService = new Intent(mContext,LastFmService.class);
+                if(type == TagAdapter.TYPE_ALBUMS) intentService.setAction(LastFmService.ALBUM);
+                else intentService.setAction(LastFmService.ARTIST);
+                intentService.putExtra(LastFmService.QUERY,mbid);
+                startService(intentService);
+            }
+        });
         recyclerView = ((RecyclerView) findViewById(R.id.cardList));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());

@@ -36,6 +36,8 @@ public class LastFmService extends IntentService {
     public static final String INFO = "info";
     public static final String RADIO_TUNE = "radio_tune";
     public static final String TOP_TAGS = "top_tags";
+    public static final String ALBUM = "album";
+    public static final String ARTIST = "artist";
 
     private static final String BASE_URL = "http://ws.audioscrobbler.com/2.0/?";
     private static final String RADIO_URL = "http://ext.last.fm/2.0/";
@@ -72,6 +74,13 @@ public class LastFmService extends IntentService {
                     break;
                 case TOP_TAGS:
                     getTopTags();
+                    break;
+                case ALBUM:
+                    getAlbum(query);    //here query is mbid
+                    break;
+                case ARTIST:
+                    getArtist(query);   //here query is mbid
+                    break;
             }
         }
     }
@@ -83,8 +92,8 @@ public class LastFmService extends IntentService {
 
     private void getInfo(String tagName){
         String info = get(tagName, "tag.getinfo", null);
-        String artists = get(tagName,"tag.gettopartists","5");
-        String albums = get(tagName, "tag.gettopalbums", "5");
+        String artists = get(tagName,"tag.gettopartists","7");
+        String albums = get(tagName, "tag.gettopalbums", "7");
         saveInfo(info, albums, artists);
     }
 
@@ -198,7 +207,15 @@ public class LastFmService extends IntentService {
     }
 
     private void getTopTags(){
-        saveTopTags(get(null,"tag.getTopTags","30"));
+        saveTopTags(get(null,"tag.getTopTags",null)); //limit is not working here
+    }
+
+    private void getAlbum(String mbid){
+        saveAlbum(getByMBID(mbid, "album.getinfo"));
+    }
+
+    private void getArtist(String mbid){
+        saveArtist(getByMBID(mbid,"artist.getinfo"));
     }
 
     private String get(String tag, String method, String limit){
@@ -249,6 +266,50 @@ public class LastFmService extends IntentService {
         return json;
     }
 
+    private String getByMBID(String mbid, String method){
+        HttpURLConnection urlConnection = null;
+        String json = "";
+        try {
+            Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
+                    .appendQueryParameter("method", method)
+                    .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter("format", "json")
+                    .appendQueryParameter("mbid",mbid);
+
+            Uri builtUri = builder.build();
+
+            URL url = new URL(builtUri.toString());
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null)
+                return "";
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line + "\n");
+            }
+
+            if (buffer.length() == 0)
+                return"";
+
+            json = buffer.toString();
+            Log.e("SERVICE result", json);
+        }catch (MalformedURLException e){
+            Log.e("SERVICE",e.toString());
+        }catch (ProtocolException e) {
+            Log.e("SERVICE", e.toString());
+        }catch (IOException e) {
+            Log.e("SERVICE", e.toString());
+        }
+        return json;
+    }
 
 
     private void saveData(String json){
@@ -356,6 +417,60 @@ public class LastFmService extends IntentService {
 
                 getContentResolver().bulkInsert(Contract.ResultsEntry.CONTENT_URI,contentValues);
             }
+        }catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+        queryList.remove(query);
+    }
+
+    private void saveAlbum(String json){
+        try{
+            JSONObject album = (new JSONObject(json)).getJSONObject("album");
+            String name = album.getString("name");
+            String artist = album.getString("artist");
+            String mbid = query;
+            String image = album.getJSONArray("image").toString();
+            String track_list = album.getJSONObject("tracks").getJSONArray("track").toString();
+            String top_tags = album.getJSONObject("toptags").getJSONArray("tag").toString();
+            String wiki = album.getJSONObject("wiki").toString();
+
+            ContentValues values = new ContentValues();
+            values.put(Contract.AlbumEntry.NAME,name);
+            values.put(Contract.AlbumEntry.ARTIST,artist);
+            values.put(Contract.AlbumEntry.MBID,mbid);
+            values.put(Contract.AlbumEntry.IMAGE,image);
+            values.put(Contract.AlbumEntry.TAGS,top_tags);
+            values.put(Contract.AlbumEntry.TRACK_LIST,track_list);
+            values.put(Contract.AlbumEntry.WIKI,wiki);
+
+            getContentResolver().insert(Contract.AlbumEntry.CONTENT_URI, values);
+        }catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+        queryList.remove(query);
+    }
+
+    private void saveArtist(String json){
+        try{
+            JSONObject artist = (new JSONObject(json)).getJSONObject("artist");
+            String name = artist.getString("name");
+            String similar = artist.getJSONObject("similar").getJSONArray("artist").toString();
+            String mbid = query;
+            String image = artist.getJSONArray("image").toString();
+            String top_tags = artist.getJSONObject("tags").getJSONArray("tag").toString();
+            String bio = artist.getJSONObject("bio").toString();
+
+            ContentValues values = new ContentValues();
+            values.put(Contract.ArtistEntry.NAME,name);
+            values.put(Contract.ArtistEntry.MBID,mbid);
+            values.put(Contract.ArtistEntry.IMAGE,image);
+            values.put(Contract.ArtistEntry.TAGS,top_tags);
+            values.put(Contract.ArtistEntry.SIMILAR,similar);
+            values.put(Contract.ArtistEntry.BIO,bio);
+
+            getContentResolver().insert(Contract.ArtistEntry.CONTENT_URI, values);
         }catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();

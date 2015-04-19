@@ -25,6 +25,8 @@ public class Contract {
     public static final String PATH_RESULTS = "results";
     public static final String PATH_INFO = "info";
     public static final String PATH_PLAYLIST = "playlist";
+    public static final String PATH_ALBUM = "album";
+    public static final String PATH_ARTIST = "artist";
 
     public static final class HistoryEntry implements BaseColumns {
         public static final String TABLE_NAME = PATH_HISTORY;
@@ -93,11 +95,55 @@ public class Contract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYLIST).build();
 
         public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_INFO;
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_PLAYLIST;
 
         public static Uri buildUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
+
+    public static final class AlbumEntry implements BaseColumns{
+        public static final String TABLE_NAME = PATH_ALBUM;
+
+        public static final String NAME = "name";
+        public static final String ARTIST = "artist";
+        public static final String MBID = "mbid";
+        public static final String TRACK_LIST = "track_list";
+        public static final String TAGS = "tags";
+        public static final String WIKI = "wiki";
+        public static final String IMAGE = "image";
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_ALBUM).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_ALBUM;
+
+        public static Uri buildUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
+    public static final class ArtistEntry implements BaseColumns{
+        public static final String TABLE_NAME = PATH_ARTIST;
+
+        public static final String NAME = "name";
+        public static final String MBID = "mbid";
+        public static final String SIMILAR = "similar";
+        public static final String TAGS = "tags";
+        public static final String BIO = "bio";
+        public static final String IMAGE = "image";
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_ARTIST).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_ARTIST;
+
+        public static Uri buildUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
 
 }

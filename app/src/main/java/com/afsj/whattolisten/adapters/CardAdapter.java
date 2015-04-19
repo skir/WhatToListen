@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afsj.whattolisten.R;
@@ -24,6 +25,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private JSONArray data;
     private Context mContext;
     private boolean isAlbums;
+    private static AlbumItemClick albumItemClick;
+    private static ArtistItemClick artistItemClick;
     private final int TYPE_ALBUM = 0;
     private final int TYPE_ARTIST = 1;
 
@@ -35,6 +38,14 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         mContext = context;
         this.isAlbums = isAlbums;
+    }
+
+    public void setAlbumItemClick(AlbumItemClick c){
+        albumItemClick = c;
+    }
+
+    public void setArtistItemClick(ArtistItemClick c){
+        artistItemClick = c;
     }
 
     @Override
@@ -66,9 +77,12 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     Picasso.with(mContext)
                             .load(item.getJSONArray("image").getJSONObject(1).getString("#text"))
                             .into(((AlbumViewHolder) holder).image);
+
+                    ((AlbumViewHolder) holder).mbid = item.getString("mbid");
                 }else{
                     JSONObject item = data.getJSONObject(position);
                     ((ArtistViewHolder) holder).artist.setText(item.getString("name"));
+                    ((ArtistViewHolder) holder).mbid = item.getString("mbid");
                     Picasso.with(mContext)
                             .load(item.getJSONArray("image").getJSONObject(1).getString("#text"))
                             .into(((ArtistViewHolder) holder).image);
@@ -85,25 +99,47 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return data.length();
     }
 
-    public static class AlbumViewHolder extends RecyclerView.ViewHolder  {
+    public static class AlbumViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
         public TextView album;
         public TextView artist;
         public ImageView image;
+        public String mbid;
         public AlbumViewHolder(View v) {
             super(v);
             album = (TextView) v.findViewById(R.id.album);
             artist = (TextView) v.findViewById(R.id.artist);
             image = (ImageView) v.findViewById(R.id.image);
+            ((LinearLayout) v.findViewById(R.id.item)).setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            albumItemClick.albumItemClick(mbid);
         }
     }
 
-    public static class ArtistViewHolder extends RecyclerView.ViewHolder{
+    public static class ArtistViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView artist;
         public ImageView image;
+        public String mbid;
         public ArtistViewHolder(View v){
             super(v);
             artist = (TextView) v.findViewById(R.id.artist);
             image = (ImageView) v.findViewById(R.id.image);
+            ((LinearLayout) v.findViewById(R.id.item)).setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            artistItemClick.artistItemClick(mbid);
+        }
+    }
+
+    public interface AlbumItemClick{
+        public void albumItemClick(String mbid);
+    }
+
+    public interface ArtistItemClick{
+        public void artistItemClick(String mbid);
     }
 }

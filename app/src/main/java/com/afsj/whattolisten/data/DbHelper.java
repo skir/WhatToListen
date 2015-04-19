@@ -47,10 +47,31 @@ public class DbHelper extends SQLiteOpenHelper {
                 Contract.PlaylistEntry.TAG + " TEXT NOT NULL, " +
                 Contract.PlaylistEntry.ARTIST+ " TEXT NOT NULL );";
 
+        final String SQL_CREATE_ALBUM_TABLE = "CREATE TABLE " + Contract.AlbumEntry.TABLE_NAME + " (" +
+                Contract.AlbumEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                Contract.AlbumEntry.NAME + " TEXT NOT NULL, " +
+                Contract.AlbumEntry.ARTIST + " TEXT NOT NULL, " +
+                Contract.AlbumEntry.MBID + " TEXT NOT NULL, " +
+                Contract.AlbumEntry.IMAGE + " TEXT NOT NULL, " +
+                Contract.AlbumEntry.TAGS + " TEXT NOT NULL, " +
+                Contract.AlbumEntry.WIKI + " TEXT NOT NULL, " +
+                Contract.AlbumEntry.TRACK_LIST+ " TEXT NOT NULL );";
+
+        final String SQL_CREATE_ARTIST_TABLE = "CREATE TABLE " + Contract.ArtistEntry.TABLE_NAME + " (" +
+                Contract.ArtistEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                Contract.ArtistEntry.NAME + " TEXT NOT NULL, " +
+                Contract.ArtistEntry.MBID + " TEXT NOT NULL, " +
+                Contract.ArtistEntry.IMAGE + " TEXT NOT NULL, " +
+                Contract.ArtistEntry.TAGS + " TEXT NOT NULL, " +
+                Contract.ArtistEntry.SIMILAR + " TEXT NOT NULL, " +
+                Contract.ArtistEntry.BIO+ " TEXT NOT NULL );";
+
         sqLiteDatabase.execSQL(SQL_CREATE_HISTORY_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_RESULTS_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_INFO_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_PLAYLIST_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_ALBUM_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_ARTIST_TABLE);
     }
 
     @Override
@@ -59,6 +80,8 @@ public class DbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ResultsEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Contract.InfoEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Contract.PlaylistEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Contract.AlbumEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Contract.ArtistEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

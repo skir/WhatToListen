@@ -39,9 +39,10 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     private static String tag;
     private DataSetObserver mDataSetObserver;
     private static PlayClick playClick;
+    private static TagCardItemClick tagCardItemClick;
     private final int TYPE_HEADER_INFO = 0;
-    private final int TYPE_ALBUMS = 1;
-    private final int TYPE_ARTISTS = 2;
+    public static final int TYPE_ALBUMS = 1;
+    public static final int TYPE_ARTISTS = 2;
 
     public TagAdapter(Context context,Cursor info,int windowWidth,String tag){
         this.info = info;
@@ -57,6 +58,10 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
 
     public void setPlayClick(PlayClick playClick){
         this.playClick = playClick;
+    }
+
+    public void setTagCardItemClick(TagCardItemClick t){
+        this.tagCardItemClick = t;
     }
 
     @Override
@@ -106,12 +111,27 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     }
                     break;
                 case 1:
-                    ((CardViewHolder) holder).recyclerView.setAdapter(new CardAdapter(true,mContext,info.getString(info.getColumnIndex(Contract.InfoEntry.ALBUMS))));
+                    CardAdapter adapterAlbum = new CardAdapter(true,mContext,info.getString(info.getColumnIndex(Contract.InfoEntry.ALBUMS)));
+                    adapterAlbum.setAlbumItemClick(new CardAdapter.AlbumItemClick() {
+                        @Override
+                        public void albumItemClick(String mbid) {
+                            tagCardItemClick.tagCardItemClick(mbid,TYPE_ALBUMS);
+                        }
+                    });
+                    ((CardViewHolder) holder).recyclerView.setAdapter(adapterAlbum);
                     ((CardViewHolder) holder).title.setText(mContext.getString(R.string.albums));
                     break;
                 case 2:
-                    ((CardViewHolder) holder).recyclerView.setAdapter(new CardAdapter(false,mContext,info.getString(info.getColumnIndex(Contract.InfoEntry.ARTISTS))));
+                    CardAdapter adapterArtist = new CardAdapter(false,mContext,info.getString(info.getColumnIndex(Contract.InfoEntry.ARTISTS)));
+                    adapterArtist.setArtistItemClick(new CardAdapter.ArtistItemClick() {
+                        @Override
+                        public void artistItemClick(String mbid) {
+                            tagCardItemClick.tagCardItemClick(mbid,TYPE_ARTISTS);
+                        }
+                    });
+                    ((CardViewHolder) holder).recyclerView.setAdapter(adapterArtist);
                     ((CardViewHolder) holder).title.setText(mContext.getString(R.string.artists));
+                    break;
             }
         }
 
@@ -191,5 +211,9 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
 
     public interface PlayClick{
         public void playClick(String tag);
+    }
+
+    public interface TagCardItemClick{
+        public void tagCardItemClick(String mbid, int type);
     }
 }

@@ -19,6 +19,8 @@ public class WtlProvider extends ContentProvider {
     static final int RESULTS = 101;
     static final int INFO = 102;
     static final int PLAYLIST = 103;
+    static final int ALBUM = 104;
+    static final int ARTIST = 105;
 
     static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -26,6 +28,8 @@ public class WtlProvider extends ContentProvider {
         uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_RESULTS,RESULTS);
         uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_INFO,INFO);
         uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_PLAYLIST,PLAYLIST);
+        uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_ALBUM,ALBUM);
+        uriMatcher.addURI(Contract.CONTENT_AUTHORITY,Contract.PATH_ARTIST,ARTIST);
 
         return uriMatcher;
     }
@@ -52,6 +56,10 @@ public class WtlProvider extends ContentProvider {
                 return Contract.InfoEntry.CONTENT_TYPE;
             case PLAYLIST:
                 return Contract.PlaylistEntry.CONTENT_TYPE;
+            case ALBUM:
+                return Contract.AlbumEntry.CONTENT_TYPE;
+            case ARTIST:
+                return Contract.ArtistEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -97,6 +105,24 @@ public class WtlProvider extends ContentProvider {
                         null,
                         sortOrder);
                 break;
+            case ARTIST:
+                retCursor = mOpenHelper.getReadableDatabase().query(Contract.ArtistEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            case ALBUM:
+                retCursor = mOpenHelper.getReadableDatabase().query(Contract.AlbumEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -121,14 +147,6 @@ public class WtlProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
-            case RESULTS:{
-                long _id = db.insert(Contract.ResultsEntry.TABLE_NAME, null, values);
-                if ( _id > 0 )
-                    returnUri = Contract.ResultsEntry.buildUri(_id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                break;
-            }
             case INFO:{
                 long _id = db.insert(Contract.InfoEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
@@ -137,10 +155,18 @@ public class WtlProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
-            case PLAYLIST:{
-                long _id = db.insert(Contract.PlaylistEntry.TABLE_NAME, null, values);
+            case ALBUM:{
+                long _id = db.insert(Contract.AlbumEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
-                    returnUri = Contract.PlaylistEntry.buildUri(_id);
+                    returnUri = Contract.InfoEntry.buildUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case ARTIST:{
+                long _id = db.insert(Contract.ArtistEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = Contract.InfoEntry.buildUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -165,17 +191,20 @@ public class WtlProvider extends ContentProvider {
             case HISTORY:
                 id = db.delete(Contract.HistoryEntry.TABLE_NAME, selection,selectionArgs);
                 break;
-
             case RESULTS:
                 id = db.delete(Contract.ResultsEntry.TABLE_NAME, selection,selectionArgs);
                 break;
-
             case INFO:
                 id = db.delete(Contract.InfoEntry.TABLE_NAME, selection,selectionArgs);
                 break;
-
             case PLAYLIST:
                 id = db.delete(Contract.PlaylistEntry.TABLE_NAME, selection,selectionArgs);
+                break;
+            case ARTIST:
+                id = db.delete(Contract.ArtistEntry.TABLE_NAME, selection,selectionArgs);
+                break;
+            case ALBUM:
+                id = db.delete(Contract.AlbumEntry.TABLE_NAME, selection,selectionArgs);
                 break;
 
             default:
@@ -195,10 +224,6 @@ public class WtlProvider extends ContentProvider {
         switch (match) {
             case HISTORY: {
                 id = db.update(Contract.HistoryEntry.TABLE_NAME, values,selection,selectionArgs);
-                break;
-            }
-            case RESULTS:{
-                id = db.update(Contract.ResultsEntry.TABLE_NAME, values, selection,selectionArgs);
                 break;
             }
             default:
