@@ -18,9 +18,9 @@ import android.view.MenuItem;
 
 import com.afsj.whattolisten.LastFmService;
 import com.afsj.whattolisten.R;
-import com.afsj.whattolisten.activities.PlaylistActivity;
 import com.afsj.whattolisten.adapters.TagAdapter;
 import com.afsj.whattolisten.data.Contract;
+import com.afsj.whattolisten.Utils;
 
 
 public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -31,6 +31,9 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
     private Context mContext;
     private String tag;
     private int INFO_LOADER = 5;
+    private int ARTIST_LOADER = 6;
+    private int ALBUM_LOADER = 7;
+    private int type = 0;
     private static int transition;
     private Drawable toolbarBackground;
     private static int windowWidth = 0;
@@ -38,7 +41,7 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tag);
+        setContentView(R.layout.activity_info);
 
         mContext = this;
 
@@ -46,11 +49,17 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        tag = "";
         Intent intent = getIntent();
+        if(intent.hasExtra(Utils.TYPE))
+            type = intent.getIntExtra(Utils.TYPE,0);
+
+        tag = "";
         if(intent.hasExtra(LastFmService.QUERY)) {
-            getSupportActionBar().setTitle(intent.getStringExtra(LastFmService.QUERY));
             tag = intent.getStringExtra(LastFmService.QUERY);
+            if(type == Utils.TYPE_INFO)
+                getSupportActionBar().setTitle(tag);
+            else
+                getSupportActionBar().setTitle("");
         }
 
         toolbarBackground = getResources().getDrawable(R.color.material_drawer_primary);
@@ -64,24 +73,26 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         else
             windowWidth = heidht;
 
-        adapterInfo = new TagAdapter(this,null,windowWidth,tag);
+        adapterInfo = new TagAdapter(this,null,windowWidth,tag,type);
         adapterInfo.setPlayClick(new TagAdapter.PlayClick() {
             @Override
             public void playClick(String tag) {
 //                getContentResolver().delete(Contract.PlaylistEntry.CONTENT_URI, null, null);
-                Intent i = new Intent(mContext,PlaylistActivity.class);
-                i.putExtra(LastFmService.QUERY,tag);
+                Intent i = new Intent(mContext, PlaylistActivity.class);
+                i.putExtra(LastFmService.QUERY, tag);
                 mContext.startActivity(i);
             }
         });
         adapterInfo.setTagCardItemClick(new TagAdapter.TagCardItemClick() {
             @Override
             public void tagCardItemClick(String mbid, int type) {
-                Intent intentService = new Intent(mContext,LastFmService.class);
-                if(type == TagAdapter.TYPE_ALBUMS) intentService.setAction(LastFmService.ALBUM);
-                else intentService.setAction(LastFmService.ARTIST);
-                intentService.putExtra(LastFmService.QUERY,mbid);
-                startService(intentService);
+                Intent i = new Intent(mContext, Tag.class);
+                i.putExtra(LastFmService.QUERY, mbid);
+                if(type == TagAdapter.TYPE_ALBUMS)
+                    i.putExtra(Utils.TYPE,Utils.TYPE_ALBUM);
+                else
+                    i.putExtra(Utils.TYPE, Utils.TYPE_ARTIST);
+                mContext.startActivity(i);
             }
         });
         recyclerView = ((RecyclerView) findViewById(R.id.cardList));
@@ -103,14 +114,29 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
             }
         });
 
-
-        getSupportLoaderManager().initLoader(INFO_LOADER, null, this);
-//        getInfo(tag);
+        switch (type){
+            case Utils.TYPE_INFO:
+                getSupportLoaderManager().initLoader(INFO_LOADER, null, this);
+                break;
+            case Utils.TYPE_ARTIST:
+                getSupportLoaderManager().initLoader(ARTIST_LOADER, null, this);
+                break;
+            case Utils.TYPE_ALBUM:
+                getSupportLoaderManager().initLoader(ALBUM_LOADER, null, this);
+                break;
+        }
     }
 
     private void getInfo(String tagName){
         Intent intentService = new Intent(this,LastFmService.class);
-        intentService.setAction(LastFmService.INFO);
+
+        if(type == Utils.TYPE_INFO)
+            intentService.setAction(LastFmService.INFO);
+        if(type == Utils.TYPE_ARTIST)
+            intentService.setAction(LastFmService.ARTIST);
+        if(type == Utils.TYPE_ALBUM)
+            intentService.setAction(LastFmService.ALBUM);
+
         intentService.putExtra(LastFmService.QUERY,tagName);
         startService(intentService);
     }
@@ -119,6 +145,20 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args){
         Log.e("TAG",tag);
+        if(type == Utils.TYPE_ARTIST)
+            return new CursorLoader(getBaseContext(),
+                    Contract.ArtistEntry.CONTENT_URI,
+                    null,
+                    Contract.ArtistEntry.MBID + " = ? COLLATE NOCASE",
+                    new String[]{tag},null);
+
+        if(type == Utils.TYPE_ALBUM)
+            return new CursorLoader(getBaseContext(),
+                    Contract.AlbumEntry.CONTENT_URI,
+                    null,
+                    Contract.AlbumEntry.MBID + " = ?",
+                    new String[]{tag},null);
+
         return new CursorLoader(getBaseContext(),
                 Contract.InfoEntry.CONTENT_URI,
                 new String[]{Contract.InfoEntry.SUMMARY,
@@ -135,6 +175,7 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.e("data",String.valueOf(data.getCount()));
         if(data.getCount() == 0)
             getInfo(tag);
         adapterInfo.swapCursor(data);

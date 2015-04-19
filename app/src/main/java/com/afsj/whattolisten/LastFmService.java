@@ -215,7 +215,7 @@ public class LastFmService extends IntentService {
     }
 
     private void getArtist(String mbid){
-        saveArtist(getByMBID(mbid,"artist.getinfo"));
+        saveArtist(getByMBID(mbid, "artist.getinfo"));
     }
 
     private String get(String tag, String method, String limit){
@@ -275,6 +275,52 @@ public class LastFmService extends IntentService {
                     .appendQueryParameter("api_key", API_KEY)
                     .appendQueryParameter("format", "json")
                     .appendQueryParameter("mbid",mbid);
+
+            Uri builtUri = builder.build();
+
+            URL url = new URL(builtUri.toString());
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null)
+                return "";
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line + "\n");
+            }
+
+            if (buffer.length() == 0)
+                return"";
+
+            json = buffer.toString();
+            Log.e("SERVICE result", json);
+        }catch (MalformedURLException e){
+            Log.e("SERVICE",e.toString());
+        }catch (ProtocolException e) {
+            Log.e("SERVICE", e.toString());
+        }catch (IOException e) {
+            Log.e("SERVICE", e.toString());
+        }
+        return json;
+    }
+
+    private String getSimilarArtists(String mbid){
+        HttpURLConnection urlConnection = null;
+        String json = "";
+        try {
+            Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
+                    .appendQueryParameter("method", "artist.getsimilar")
+                    .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter("format", "json")
+                    .appendQueryParameter("mbid",mbid)
+                    .appendQueryParameter("limit","5");
 
             Uri builtUri = builder.build();
 
@@ -456,7 +502,8 @@ public class LastFmService extends IntentService {
         try{
             JSONObject artist = (new JSONObject(json)).getJSONObject("artist");
             String name = artist.getString("name");
-            String similar = artist.getJSONObject("similar").getJSONArray("artist").toString();
+            JSONObject similarArtists = new JSONObject(getSimilarArtists(query));
+            String similar = similarArtists.getJSONObject("similarartists").getJSONArray("artist").toString();
             String mbid = query;
             String image = artist.getJSONArray("image").toString();
             String top_tags = artist.getJSONObject("tags").getJSONArray("tag").toString();

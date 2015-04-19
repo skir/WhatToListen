@@ -14,5 +14,7 @@ public class WhatToListen extends Application {
         getContentResolver().delete(Contract.ResultsEntry.CONTENT_URI, null, null);
         getContentResolver().delete(Contract.InfoEntry.CONTENT_URI, null, null);
         getContentResolver().delete(Contract.PlaylistEntry.CONTENT_URI, null, null);
+        getContentResolver().delete(Contract.ArtistEntry.CONTENT_URI, null, null);
+        getContentResolver().delete(Contract.AlbumEntry.CONTENT_URI, null, null);
     }
 }

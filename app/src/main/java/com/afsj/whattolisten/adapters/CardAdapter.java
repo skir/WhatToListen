@@ -82,10 +82,10 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }else{
                     JSONObject item = data.getJSONObject(position);
                     ((ArtistViewHolder) holder).artist.setText(item.getString("name"));
-                    ((ArtistViewHolder) holder).mbid = item.getString("mbid");
                     Picasso.with(mContext)
                             .load(item.getJSONArray("image").getJSONObject(1).getString("#text"))
                             .into(((ArtistViewHolder) holder).image);
+                    ((ArtistViewHolder) holder).mbid = item.getString("mbid");
                 }
             }catch (JSONException e){
                 Log.e("JSONException",e.toString());
@@ -114,7 +114,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-            albumItemClick.albumItemClick(mbid);
+            if(!mbid.equals(""))
+                albumItemClick.albumItemClick(mbid);
         }
     }
 
@@ -131,6 +132,7 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public void onClick(View v) {
+            if(!mbid.equals(""))
             artistItemClick.artistItemClick(mbid);
         }
     }

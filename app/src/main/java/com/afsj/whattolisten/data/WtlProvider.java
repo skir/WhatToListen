@@ -6,6 +6,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Created by ilia on 26.03.15.
@@ -158,7 +159,7 @@ public class WtlProvider extends ContentProvider {
             case ALBUM:{
                 long _id = db.insert(Contract.AlbumEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
-                    returnUri = Contract.InfoEntry.buildUri(_id);
+                    returnUri = Contract.AlbumEntry.buildUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -166,7 +167,7 @@ public class WtlProvider extends ContentProvider {
             case ARTIST:{
                 long _id = db.insert(Contract.ArtistEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
-                    returnUri = Contract.InfoEntry.buildUri(_id);
+                    returnUri = Contract.ArtistEntry.buildUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;

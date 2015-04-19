@@ -24,5 +24,9 @@
     <string name="artists">Top Artists</string>
     <string name="what_to_listen">What to Listen</string>
     <string name="top_tags">Top 250 Tags</string>
+    <string name="bio">Biography</string>
+    <string name="wiki">Wiki</string>
+    <string name="similar_artist">Similar artists</string>
     <string name="title_activity_playlist">PlaylistActivity</string>
+    <string name="title_activity_artist">ArtistActivity</string>
 </resources>

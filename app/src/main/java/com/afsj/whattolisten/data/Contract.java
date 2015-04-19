@@ -117,7 +117,7 @@ public class Contract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_ALBUM).build();
 
         public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_ALBUM;
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_ALBUM;
 
         public static Uri buildUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -138,7 +138,7 @@ public class Contract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_ARTIST).build();
 
         public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_ARTIST;
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_ARTIST;
 
         public static Uri buildUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
