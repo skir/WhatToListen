@@ -27,6 +27,7 @@
     <string name="bio">Biography</string>
     <string name="wiki">Wiki</string>
     <string name="similar_artist">Similar artists</string>
+    <string name="track_list">Track list</string>
     <string name="title_activity_playlist">PlaylistActivity</string>
     <string name="title_activity_artist">ArtistActivity</string>
 </resources>

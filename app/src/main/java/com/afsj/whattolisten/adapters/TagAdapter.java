@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +49,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     private final int TYPE_HEADER_A = 3;
     private final int TYPE_CARD_TEXT = 4;
     private final int TYPE_TAGS = 5;
+    private final int TYPE_TRACK_LIST = 6;
     private int type;
 
     public TagAdapter(Context context,Cursor info,int windowWidth,String tag,int type){
@@ -83,6 +86,8 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                 return new HeaderAViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.header_artist,parent,false));
             case TYPE_CARD_TEXT:
                 return new CardTextViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_bio,parent,false));
+            case TYPE_TRACK_LIST:
+                return new CardTrackListViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.tag_card,parent,false));
         }
         throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
     }
@@ -114,8 +119,8 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     return TYPE_HEADER_A;
                 case 1:
                     return TYPE_CARD_TEXT;
-//                case 2:                                 //TODO add track list
-//                    return TYPE_ARTISTS;
+                case 2:                                 //TODO add track list
+                    return TYPE_TRACK_LIST;
             }
 
         return TYPE_HEADER_INFO;
@@ -193,6 +198,17 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                             ((CardTextViewHolder) holder).info.setText(Html.fromHtml(wiki.getString("summary")));
                         }
                     }catch (JSONException e){
+                        Log.e("JSONException",e.toString());
+                    }
+                    break;
+                case TYPE_TRACK_LIST:
+                    TrackListAdapter adapter = new TrackListAdapter(mContext,info.getString(info.getColumnIndex(Contract.AlbumEntry.TRACK_LIST)));
+                    ((CardTrackListViewHolder) holder).recyclerView.setAdapter(adapter);
+                    ((CardTrackListViewHolder) holder).title.setText(mContext.getString(R.string.track_list));
+                    try {
+                        JSONArray data = new JSONArray(info.getString(info.getColumnIndex(Contract.AlbumEntry.TRACK_LIST)));
+                        ((CardTrackListViewHolder) holder).cardView.getLayoutParams().height = data.length() * (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 56, mContext.getResources().getDisplayMetrics());
+                    }catch(JSONException e){
                         Log.e("JSONException",e.toString());
                     }
                     break;
@@ -298,6 +314,24 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             info = (TextView) v.findViewById(R.id.info);
             info.setMovementMethod(LinkMovementMethod.getInstance());
             title = (TextView) v.findViewById(R.id.title);
+        }
+    }
+
+    public static class CardTrackListViewHolder extends RecyclerView.ViewHolder{
+        public RecyclerView recyclerView;
+        public TextView title;
+        public CardView cardView;
+        public CardTrackListViewHolder(View v){
+            super(v);
+            recyclerView = (RecyclerView) v.findViewById(R.id.albums);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
+            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL_LIST));
+
+            title = (TextView) v.findViewById(R.id.title);
+
+            cardView = (CardView) v.findViewById(R.id.card_view);
         }
     }
 
