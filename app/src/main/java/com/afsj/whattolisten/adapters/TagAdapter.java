@@ -119,7 +119,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     return TYPE_HEADER_A;
                 case 1:
                     return TYPE_CARD_TEXT;
-                case 2:                                 //TODO add track list
+                case 2:                                 
                     return TYPE_TRACK_LIST;
             }
 
