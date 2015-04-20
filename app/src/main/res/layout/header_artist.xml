@@ -23,23 +23,37 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/name"
         android:textSize="20sp"
         android:fontFamily="sans-serif-condensed"
         android:textColor="@color/md_light_blue_100"
         android:ellipsize="end"
         android:gravity="top|left"
-        android:lines="5"
         android:maxLines="5"
         android:layout_toRightOf="@+id/image"
         android:layout_toEndOf="@+id/image"
         android:layout_alignTop="@+id/image"
-        android:layout_alignBottom="@+id/image"
+        android:layout_marginRight="16dp"
+        android:paddingLeft="16dp"
+        android:paddingTop="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/name2"
+        android:textSize="20sp"
+        android:fontFamily="sans-serif-condensed"
+        android:textColor="@color/md_light_blue_100"
+        android:ellipsize="end"
+        android:gravity="top|left"
+        android:maxLines="5"
+        android:layout_toRightOf="@+id/image"
+        android:layout_toEndOf="@+id/image"
         android:layout_marginRight="16dp"
         android:paddingLeft="16dp"
         android:paddingTop="8dp"
-        android:text="Name" />
+        android:layout_below="@+id/name" />
 
     <ImageButton
         android:layout_width="56dp"

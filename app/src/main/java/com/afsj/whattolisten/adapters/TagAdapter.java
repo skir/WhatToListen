@@ -1,7 +1,6 @@
 package com.afsj.whattolisten.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.v7.widget.CardView;
@@ -14,14 +13,11 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afsj.whattolisten.DividerItemDecoration;
 import com.afsj.whattolisten.ImageTransformation;
-import com.afsj.whattolisten.LastFmService;
 import com.afsj.whattolisten.R;
 import com.afsj.whattolisten.Utils;
 import com.afsj.whattolisten.data.Contract;
@@ -119,7 +115,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     return TYPE_HEADER_A;
                 case 1:
                     return TYPE_CARD_TEXT;
-                case 2:                                 
+                case 2:
                     return TYPE_TRACK_LIST;
             }
 
@@ -130,7 +126,6 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if(info != null && info.getCount() > 0) {
             info.moveToFirst();
-            Log.e("type",String.valueOf(getItemViewType(position)));
             switch (getItemViewType(position)) {
                 case TYPE_HEADER_INFO:
                     ((InfoViewHolder) holder).info.setText(Html.fromHtml(info.getString(info.getColumnIndex(Contract.InfoEntry.SUMMARY))));
@@ -175,12 +170,14 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     break;
                 case TYPE_HEADER_A:
                     ((HeaderAViewHolder) holder).name.setText(info.getString(info.getColumnIndex(Contract.ArtistEntry.NAME)));
+                    if(type == Utils.TYPE_ALBUM)
+                        ((HeaderAViewHolder) holder).name2.setText(info.getString(info.getColumnIndex(Contract.AlbumEntry.ARTIST)));
+
                     try {
                         JSONArray array = new JSONArray(info.getString(info.getColumnIndex(Contract.ArtistEntry.IMAGE)));
                         JSONObject item = array.getJSONObject(2);
                         Picasso.with(mContext)
                                 .load(item.getString("#text"))
-                                .transform(new ImageTransformation())
                                 .into(((HeaderAViewHolder) holder).image);
                     }catch (JSONException e){
                         Log.e("JSONException",e.toString());
@@ -207,7 +204,8 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     ((CardTrackListViewHolder) holder).title.setText(mContext.getString(R.string.track_list));
                     try {
                         JSONArray data = new JSONArray(info.getString(info.getColumnIndex(Contract.AlbumEntry.TRACK_LIST)));
-                        ((CardTrackListViewHolder) holder).cardView.getLayoutParams().height = data.length() * (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 56, mContext.getResources().getDisplayMetrics());
+                        ((CardTrackListViewHolder) holder).cardView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                                ((CardTrackListViewHolder) holder).recyclerView.getLayoutParams().height = data.length() * (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 57, mContext.getResources().getDisplayMetrics());
                     }catch(JSONException e){
                         Log.e("JSONException",e.toString());
                     }
@@ -264,8 +262,8 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             info = (TextView) v.findViewById(R.id.info);
             info.setMovementMethod(LinkMovementMethod.getInstance());
             image = (ImageView) v.findViewById(R.id.image);
-            ((RelativeLayout) v.findViewById(R.id.layout)).getLayoutParams().height = 2 * windowWidth / 3;
-            ((ImageButton) v.findViewById(R.id.play)).setOnClickListener(new View.OnClickListener() {
+            v.findViewById(R.id.layout).getLayoutParams().height = 2 * windowWidth / 3;
+            v.findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     playClick.playClick(tag);
@@ -276,13 +274,15 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
 
     public static class HeaderAViewHolder extends RecyclerView.ViewHolder  {
         public TextView name;
+        public TextView name2;
         public ImageView image;
         public HeaderAViewHolder(View v) {
             super(v);
             name = (TextView) v.findViewById(R.id.name);
+            name2 = (TextView) v.findViewById(R.id.name2);
             image = (ImageView) v.findViewById(R.id.image);
-            ((RelativeLayout) v.findViewById(R.id.layout)).getLayoutParams().height = 2 * windowWidth / 3;
-            ((ImageButton) v.findViewById(R.id.play)).setOnClickListener(new View.OnClickListener() {
+            v.findViewById(R.id.layout).getLayoutParams().height = 2 * windowWidth / 3;
+            v.findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     playClick.playClick(tag);
@@ -336,10 +336,10 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     }
 
     public interface PlayClick{
-        public void playClick(String tag);
+        void playClick(String tag);
     }
 
     public interface TagCardItemClick{
-        public void tagCardItemClick(String mbid, int type);
+        void tagCardItemClick(String mbid, int type);
     }
 }

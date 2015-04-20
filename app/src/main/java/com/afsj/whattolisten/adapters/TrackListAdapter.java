@@ -20,7 +20,7 @@ import org.json.JSONObject;
 public class TrackListAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private JSONArray data;
-    private Context mContext;
+    private static Context mContext;
     private final int TYPE_TRACK = 0;
 
     public TrackListAdapter(Context context, String array){
@@ -52,7 +52,14 @@ public class TrackListAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHol
             try {
                 JSONObject item = data.getJSONObject(position);
                 ((TrackViewHolder) holder).title.setText(item.getString("name"));
-                ((TrackViewHolder) holder).duration.setText(item.getString("duration"));
+                int duration = Integer.parseInt(item.getString("duration"));
+                int minutes = duration / 60;
+                int seconds = duration % 60;
+                String secondsStr = String.valueOf(seconds);
+                if(seconds < 10)
+                    secondsStr = "0" + secondsStr;
+
+                ((TrackViewHolder) holder).duration.setText(String.valueOf(minutes) + ":" + secondsStr);
                 ((TrackViewHolder) holder).number.setText(String.valueOf(position + 1));
             }catch (JSONException e){
                 Log.e("JSONException",e.toString());

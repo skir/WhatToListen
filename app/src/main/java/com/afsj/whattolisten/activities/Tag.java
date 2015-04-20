@@ -88,8 +88,8 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
             public void tagCardItemClick(String mbid, int type) {
                 Intent i = new Intent(mContext, Tag.class);
                 i.putExtra(LastFmService.QUERY, mbid);
-                if(type == TagAdapter.TYPE_ALBUMS)
-                    i.putExtra(Utils.TYPE,Utils.TYPE_ALBUM);
+                if (type == TagAdapter.TYPE_ALBUMS)
+                    i.putExtra(Utils.TYPE, Utils.TYPE_ALBUM);
                 else
                     i.putExtra(Utils.TYPE, Utils.TYPE_ARTIST);
                 mContext.startActivity(i);
@@ -107,11 +107,21 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
                 transition += dy;
                 int header = 2 * windowWidth / 3 - getResources().getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
 //                Log.e("DY",String.valueOf(header));
-                if (transition <= header + 1) {
+                if (transition <= header) {
                     int newAlpha = transition * 255 / header;
                     toolbarBackground.setAlpha(newAlpha);
                 }
+                else
+                    toolbarBackground.setAlpha(255);
             }
+//
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                if(newState == 0){
+//
+//                }
+//            }
         });
 
         switch (type){
