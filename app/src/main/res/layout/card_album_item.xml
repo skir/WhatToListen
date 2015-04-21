@@ -6,7 +6,8 @@
     android:paddingRight="4dp"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
-    android:id="@+id/item">
+    android:id="@+id/item"
+    android:background="?android:attr/selectableItemBackground">
 
     <ImageView
         android:layout_width="56dp"

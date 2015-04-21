@@ -96,7 +96,9 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return data.length();
+        if(data != null)
+            return data.length();
+        else return 0;
     }
 
     public static class AlbumViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {

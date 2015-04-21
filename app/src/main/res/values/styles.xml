@@ -2,6 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="MaterialDrawerTheme.Light">
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="Toolbar" parent="Theme.AppCompat.NoActionBar">

@@ -45,7 +45,7 @@
             android:parentActivityName=".activities.ResultsActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
+                android:value=".activities.ResultsActivity" />
         </activity>
         <activity
             android:name=".activities.PlaylistActivity"
@@ -54,10 +54,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.Tag" />
-        </activity>
-        <activity
-            android:name=".activities.ArtistActivity"
-            android:label="@string/title_activity_artist" >
         </activity>
     </application>
 

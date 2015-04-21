@@ -61,23 +61,30 @@ public class PlaylistActivity extends ActionBarActivity implements LoaderManager
             getSupportActionBar().setTitle(intent.getStringExtra(LastFmService.QUERY));
             tag = intent.getStringExtra(LastFmService.QUERY);
         }
-        if(type == Utils.TYPE_ALBUM){
-            Cursor album = getContentResolver().query(Contract.AlbumEntry.CONTENT_URI,
-                    new String[]{Contract.AlbumEntry.ARTIST},
-                    Contract.AlbumEntry.MBID + " = ? ",
-                    new String[]{tag},null);
-            album.moveToFirst();
-            tag = album.getString(album.getColumnIndex(Contract.AlbumEntry.ARTIST));
+        switch (type){
+            case Utils.TYPE_ALBUM: {
+                Cursor album = getContentResolver().query(Contract.AlbumEntry.CONTENT_URI,
+                        new String[]{Contract.AlbumEntry.ARTIST},
+                        Contract.AlbumEntry.MBID + " = ? ",
+                        new String[]{tag}, null);
+                album.moveToFirst();
+                tag = album.getString(album.getColumnIndex(Contract.AlbumEntry.ARTIST));
+                getSupportActionBar().setTitle(tag + " and similar");
+                break;
+            }
+            case Utils.TYPE_ARTIST: {
+                Cursor album = getContentResolver().query(Contract.ArtistEntry.CONTENT_URI,
+                        new String[]{Contract.ArtistEntry.NAME},
+                        Contract.ArtistEntry.MBID + " = ? ",
+                        new String[]{tag}, null);
+                album.moveToFirst();
+                tag = album.getString(album.getColumnIndex(Contract.ArtistEntry.NAME));
+                getSupportActionBar().setTitle(tag + " and similar");
+                break;
+            }
+            default:
+                getSupportActionBar().setTitle(tag);
         }
-        if(type == Utils.TYPE_ARTIST){
-            Cursor album = getContentResolver().query(Contract.ArtistEntry.CONTENT_URI,
-                    new String[]{Contract.ArtistEntry.NAME},
-                    Contract.ArtistEntry.MBID + " = ? ",
-                    new String[]{tag},null);
-            album.moveToFirst();
-            tag = album.getString(album.getColumnIndex(Contract.ArtistEntry.NAME));
-        }
-        getSupportActionBar().setTitle(tag + " and similar");
     }
 
     private void setUpRecyclerView(){

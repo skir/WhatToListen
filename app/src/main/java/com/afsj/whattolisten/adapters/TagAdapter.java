@@ -131,7 +131,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     ((InfoViewHolder) holder).info.setText(Html.fromHtml(info.getString(info.getColumnIndex(Contract.InfoEntry.SUMMARY))));
                     try {
                         JSONArray array = new JSONArray(info.getString(info.getColumnIndex(Contract.InfoEntry.ARTISTS)));
-                        JSONObject item = array.getJSONObject(1);
+                        JSONObject item = array.getJSONObject(0);
                         Picasso.with(mContext)
                                 .load(item.getJSONArray("image").getJSONObject(4).getString("#text"))
                                 .transform(new ImageTransformation())
@@ -262,7 +262,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             info = (TextView) v.findViewById(R.id.info);
             info.setMovementMethod(LinkMovementMethod.getInstance());
             image = (ImageView) v.findViewById(R.id.image);
-            v.findViewById(R.id.layout).getLayoutParams().height = 2 * windowWidth / 3;
+            v.findViewById(R.id.layout).getLayoutParams().height = 2 * windowWidth / 3 + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, mContext.getResources().getDisplayMetrics());
             v.findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

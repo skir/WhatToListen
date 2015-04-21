@@ -19,6 +19,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.AdapterView;
 
 import com.afsj.whattolisten.DividerItemDecoration;
 import com.afsj.whattolisten.LastFmService;
@@ -32,6 +33,7 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.quinny898.library.persistentsearch.SearchBox;
 import com.quinny898.library.persistentsearch.SearchResult;
 
@@ -192,11 +194,21 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
                 .withDrawerWidthDp(240)
                 .addDrawerItems(
                         new SectionDrawerItem().withName(R.string.drawer_item_settings),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_cog),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIcon(FontAwesome.Icon.faw_question).setEnabled(false),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(FontAwesome.Icon.faw_github).withBadge("12+").withIdentifier(1)
-                ).build();
+                        new SecondaryDrawerItem().withName(R.string.clear_history).withIcon(FontAwesome.Icon.faw_trash_o).withCheckable(false),
+                        new SecondaryDrawerItem().withName(R.string.about).withIcon(FontAwesome.Icon.faw_question).setEnabled(false),
+                        new DividerDrawerItem()
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
+                        if (i == 1) {
+                            getContentResolver().delete(Contract.HistoryEntry.CONTENT_URI, null, null);
+                            updateHistory();
+                        }
+                    }
+                })
+
+                .build();
         drawerLayout = drawer.getDrawerLayout();
         drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
