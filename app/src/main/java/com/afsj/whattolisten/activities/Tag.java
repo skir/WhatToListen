@@ -63,7 +63,8 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         }
 
         toolbarBackground = getResources().getDrawable(R.color.material_drawer_primary);
-        toolbarBackground.setAlpha(0);
+        if(toolbarBackground != null)
+            toolbarBackground.setAlpha(0);
         toolbar.setBackgroundDrawable(toolbarBackground);
         transition = 0;
         int width = getWindowManager().getDefaultDisplay().getWidth();
@@ -74,15 +75,6 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
             windowWidth = heidht;
 
         adapterInfo = new TagAdapter(this,null,windowWidth,tag,type);
-        adapterInfo.setPlayClick(new TagAdapter.PlayClick() {
-            @Override
-            public void playClick(String tag) {
-//                getContentResolver().delete(Contract.PlaylistEntry.CONTENT_URI, null, null);
-                Intent i = new Intent(mContext, PlaylistActivity.class);
-                i.putExtra(LastFmService.QUERY, tag);
-                mContext.startActivity(i);
-            }
-        });
         adapterInfo.setTagCardItemClick(new TagAdapter.TagCardItemClick() {
             @Override
             public void tagCardItemClick(String mbid, int type) {
@@ -203,5 +195,21 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         }
 
         return true;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.e("onresume",tag+" "+String.valueOf(type));
+        adapterInfo.setPlayClick(new TagAdapter.PlayClick() {
+            @Override
+            public void playClick() {
+                Log.e("onclick",tag+" "+String.valueOf(type));
+                Intent i = new Intent(mContext, PlaylistActivity.class);
+                i.putExtra(LastFmService.QUERY, tag);
+                i.putExtra(Utils.TYPE,type);
+                mContext.startActivity(i);
+            }
+        });
     }
 }

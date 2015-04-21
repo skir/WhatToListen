@@ -266,7 +266,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             v.findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    playClick.playClick(tag);
+                    playClick.playClick();
                 }
             });
         }
@@ -285,7 +285,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             v.findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    playClick.playClick(tag);
+                    playClick.playClick();
                 }
             });
         }
@@ -336,7 +336,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     }
 
     public interface PlayClick{
-        void playClick(String tag);
+        void playClick();
     }
 
     public interface TagCardItemClick{

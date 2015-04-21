@@ -10,23 +10,12 @@
     android:background="@drawable/list_item_background">
 
 
-    <FrameLayout
-        android:layout_width="60dp"
-        android:layout_height="wrap_content">
-
-    <ImageView
-        android:id="@+id/album_cover"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_av_play_arrow_dark" />
-    </FrameLayout>
-
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="7"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginLeft="16dp">
 
         <TextView
             android:id="@+id/title"
@@ -42,6 +31,19 @@
             android:fontFamily="sans-serif-condensed"
             android:textAppearance="?android:textAppearanceSmall"/>
     </LinearLayout>
+
+    <!--<FrameLayout-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1.5">-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/duration"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:fontFamily="sans-serif-condensed"-->
+            <!--android:textSize="20sp" />-->
+    <!--</FrameLayout>-->
 
     <FrameLayout
         android:layout_width="60dp"

@@ -23,6 +23,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private static Context mContext;
     private static ListItemClick listItemClick;
     private final int TYPE_ITEM = 1;
+    private final int TYPE_HEADER = 2;
 
     public PlaylistAdapter(Context context,Cursor data){
         this.data = data;
@@ -41,6 +42,8 @@ public class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         switch (viewType){
             case TYPE_ITEM:
                 return new TrackViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_item, parent, false));
+            case TYPE_HEADER:
+                return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.header, parent, false));
         }
         throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
     }
@@ -48,6 +51,8 @@ public class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemViewType(int position) {
+        if(position == 0)
+            return TYPE_HEADER;
         return TYPE_ITEM;
     }
 
@@ -62,6 +67,14 @@ public class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             ((TrackViewHolder) holder).artistAlbum.setText(aritst);
             ((TrackViewHolder) holder).location = data.getString(data.getColumnIndex(Contract.PlaylistEntry.LOCATION));
+//            int duration = Integer.parseInt(data.getString(data.getColumnIndex(Contract.PlaylistEntry.DURATION)));
+//            int minutes = (duration / 1000) / 60;
+//            int seconds = (duration / 1000) % 60;
+//            String secondsStr = String.valueOf(seconds);
+//            if(seconds < 10)
+//                secondsStr = "0" + secondsStr;
+//
+//            ((TrackViewHolder) holder).duration.setText(String.valueOf(minutes) + ":" + secondsStr);
         }
 
     }
@@ -111,13 +124,13 @@ public class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public static class TrackViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView title;
         public TextView artistAlbum;
-        public ImageView cover;
+        public TextView duration;
         public String location;
         public TrackViewHolder(View v) {
             super(v);
             title = (TextView) v.findViewById(R.id.title);
             artistAlbum = (TextView) v.findViewById(R.id.artist_album);
-            cover = (ImageView) v.findViewById(R.id.album_cover);
+            duration = (TextView) v.findViewById(R.id.duration);
             v.setOnClickListener(this);
         }
 
@@ -127,7 +140,13 @@ public class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    public static class EmptyViewHolder extends RecyclerView.ViewHolder {
+        public EmptyViewHolder(View v) {
+            super(v);
+        }
+    }
+
     public interface ListItemClick{
-        public void listItemClick(String location);
+        void listItemClick(String location);
     }
 }

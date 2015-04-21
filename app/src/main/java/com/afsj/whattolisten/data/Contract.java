@@ -90,6 +90,8 @@ public class Contract {
         public static final String ALBUM = "album";
         public static final String ARTIST = "artist";
         public static final String TAG = "tag";
+        public static final String IMAGE = "image";
+        public static final String DURATION = "duration";
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYLIST).build();

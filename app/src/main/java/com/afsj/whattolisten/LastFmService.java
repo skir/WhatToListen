@@ -46,8 +46,12 @@ public class LastFmService extends IntentService {
     private static final String API_SECRET = "2b3e2099eeb8608316f1ed8e78f311ba";
     private static final String sk = "e3ce21a934937f14220bf16ff1386e3b";
 
+    private static final String GET = "GET";
+    private static final String POST = "POST";
+
     private static List<String> queryList;
     private String query;
+    private int playlistType = 0;
     private Cursor history;
 
     public LastFmService() {
@@ -70,6 +74,7 @@ public class LastFmService extends IntentService {
                     getInfo(query);
                     break;
                 case RADIO_TUNE:
+                    playlistType = intent.getIntExtra(Utils.TYPE,0);
                     getPlaylist(query);
                     break;
                 case TOP_TAGS:
@@ -85,6 +90,42 @@ public class LastFmService extends IntentService {
         }
     }
 
+    private String httpRequest(Uri builtUri,String method){
+        HttpURLConnection urlConnection;
+        String json = "";
+        try {
+            URL url = new URL(builtUri.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod(method);
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuilder buffer = new StringBuilder();
+            if (inputStream == null)
+                return "";
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line += "\n";
+                buffer.append(line);
+            }
+
+            if (buffer.length() == 0)
+                return "";
+
+            json = buffer.toString();
+        }catch (MalformedURLException e){
+            Log.e("SERVICE",e.toString());
+        }catch (ProtocolException e) {
+            Log.e("SERVICE", e.toString());
+        }catch (IOException e) {
+            Log.e("SERVICE", e.toString());
+        }
+        return json;
+    }
+
     private void search(String query){
 
         saveData(get(query, "tag.search", null));
@@ -92,7 +133,7 @@ public class LastFmService extends IntentService {
 
     private void getInfo(String tagName){
         String info = get(tagName, "tag.getinfo", null);
-        String artists = get(tagName,"tag.gettopartists","7");
+        String artists = get(tagName, "tag.gettopartists", "7");
         String albums = get(tagName, "tag.gettopalbums", "7");
         saveInfo(info, albums, artists);
     }
@@ -111,103 +152,42 @@ public class LastFmService extends IntentService {
         String method = "prototype.getPlaylist";
         String md5Str = "api_key" + API_KEY + "method" + method + "sk" + sk + API_SECRET;
         String api_sig = md5(md5Str);
-        HttpURLConnection urlConnection = null;
-        String json = "";
-        try {
-            Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("method", method)
-                    .appendQueryParameter("sk",sk)
-                    .appendQueryParameter("api_sig",api_sig)
-                    .appendQueryParameter("format", "json");
+        Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter("method", method)
+                .appendQueryParameter("sk",sk)
+                .appendQueryParameter("api_sig",api_sig)
+                .appendQueryParameter("format", "json")
+                .build();
 
-            Uri builtUri = builder.build();
-
-            URL url = new URL(builtUri.toString());
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null)
-                return;
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0)
-                return;
-
-            json = buffer.toString();
-            Log.e("SERVICE result", json);
-            savePlaylist(json);
-        }catch (MalformedURLException e){
-            Log.e("SERVICE",e.toString());
-        }catch (ProtocolException e) {
-            Log.e("SERVICE", e.toString());
-        }catch (IOException e) {
-            Log.e("SERVICE", e.toString());
-        }
+        savePlaylist(httpRequest(builtUri, GET));
     }
 
     private String tune(String tag){
-        HttpURLConnection urlConnection = null;
         String method = "prototype.tune";
-        String station = "lastfm://globaltags/" + tag.replaceAll(" ", "%20");
+        String station;
+        if(playlistType == 0)
+            station = "lastfm://globaltags/" + tag.replaceAll(" ", "%20");
+        else
+            station = "lastfm://artist/" + tag.replaceAll(" ", "%20") + "/similarartists";
+
         String md5Str = "api_key" + API_KEY + "method" + method + "sk" + sk + "station" + station + API_SECRET;
         String api_sig = md5(md5Str);
-        String json = "";
-        try {
-            Uri builtUri = Uri.parse(RADIO_URL).buildUpon()
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("method", method)
-                    .appendQueryParameter("sk",sk)
-                    .appendQueryParameter("station", station)
-                    .appendQueryParameter("api_sig",api_sig)
-                    .appendQueryParameter("format", "json")
-                    .build();
 
-            URL url = new URL(builtUri.toString());
+        Uri builtUri = Uri.parse(RADIO_URL).buildUpon()
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter("method", method)
+                .appendQueryParameter("sk",sk)
+                .appendQueryParameter("station", station)
+                .appendQueryParameter("api_sig",api_sig)
+                .appendQueryParameter("format", "json")
+                .build();
 
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.connect();
-
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null)
-                return "";
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0)
-                return "";
-
-            json = buffer.toString();
-            Log.e("SERVICE RADIO result", json);
-        }catch (MalformedURLException e){
-            Log.e("SERVICE",e.toString());
-        }catch (ProtocolException e) {
-            Log.e("SERVICE", e.toString());
-        }catch (IOException e) {
-            Log.e("SERVICE", e.toString());
-        }
-        return json;
+        return httpRequest(builtUri,POST);
     }
 
     private void getTopTags(){
-        saveTopTags(get(null,"tag.getTopTags",null)); //limit is not working here
+        saveTopTags(get(null, "tag.getTopTags", null)); //limit is not working here
     }
 
     private void getAlbum(String mbid){
@@ -219,142 +199,56 @@ public class LastFmService extends IntentService {
     }
 
     private String get(String tag, String method, String limit){
-        HttpURLConnection urlConnection = null;
-        String json = "";
-        try {
-            Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter("method", method)
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("format", "json");
-            if(tag != null)
-                builder.appendQueryParameter("tag", tag);
-            if(limit != null && limit != "")
-                builder.appendQueryParameter("limit",limit);
 
-            Uri builtUri = builder.build();
+        Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
+                .appendQueryParameter("method", method)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter("format", "json");
+        if(tag != null)
+            builder.appendQueryParameter("tag", tag);
+        if(limit != null && !limit.equals(""))
+            builder.appendQueryParameter("limit",limit);
 
-            URL url = new URL(builtUri.toString());
+        Uri builtUri = builder.build();
 
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null)
-                return "";
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0)
-                return"";
-
-            json = buffer.toString();
-            Log.e("SERVICE result", json);
-        }catch (MalformedURLException e){
-            Log.e("SERVICE",e.toString());
-        }catch (ProtocolException e) {
-            Log.e("SERVICE", e.toString());
-        }catch (IOException e) {
-            Log.e("SERVICE", e.toString());
-        }
-        return json;
+        return httpRequest(builtUri, GET);
     }
 
     private String getByMBID(String mbid, String method){
-        HttpURLConnection urlConnection = null;
-        String json = "";
-        try {
-            Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter("method", method)
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("format", "json")
-                    .appendQueryParameter("mbid",mbid);
 
-            Uri builtUri = builder.build();
+        Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                .appendQueryParameter("method", method)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter("format", "json")
+                .appendQueryParameter("mbid",mbid)
+                .build();
 
-            URL url = new URL(builtUri.toString());
+        return httpRequest(builtUri,GET);
+    }
 
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
+    private String getByName(String name){
 
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null)
-                return "";
+        Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                .appendQueryParameter("method", "artist.getinfo")
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter("format", "json")
+                .appendQueryParameter("artist",name)
+                .build();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0)
-                return"";
-
-            json = buffer.toString();
-            Log.e("SERVICE result", json);
-        }catch (MalformedURLException e){
-            Log.e("SERVICE",e.toString());
-        }catch (ProtocolException e) {
-            Log.e("SERVICE", e.toString());
-        }catch (IOException e) {
-            Log.e("SERVICE", e.toString());
-        }
-        return json;
+        return httpRequest(builtUri,GET);
     }
 
     private String getSimilarArtists(String mbid){
-        HttpURLConnection urlConnection = null;
-        String json = "";
-        try {
-            Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter("method", "artist.getsimilar")
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("format", "json")
-                    .appendQueryParameter("mbid",mbid)
-                    .appendQueryParameter("limit","5");
 
-            Uri builtUri = builder.build();
+        Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                .appendQueryParameter("method", "artist.getsimilar")
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter("format", "json")
+                .appendQueryParameter("mbid",mbid)
+                .appendQueryParameter("limit","5")
+                .build();
 
-            URL url = new URL(builtUri.toString());
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null)
-                return "";
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0)
-                return"";
-
-            json = buffer.toString();
-            Log.e("SERVICE result", json);
-        }catch (MalformedURLException e){
-            Log.e("SERVICE",e.toString());
-        }catch (ProtocolException e) {
-            Log.e("SERVICE", e.toString());
-        }catch (IOException e) {
-            Log.e("SERVICE", e.toString());
-        }
-        return json;
+        return httpRequest(builtUri,GET);
     }
 
 
@@ -389,22 +283,34 @@ public class LastFmService extends IntentService {
     }
 
     private void saveInfo(String jsonInfo,String jsonAlbums, String jsonArtist){
-        try{
-            String summary = (new JSONObject(jsonInfo)).getJSONObject("tag").getJSONObject("wiki").getString("summary");
-            String albums = (new JSONObject(jsonAlbums)).getJSONObject("topalbums").getJSONArray("album").toString();
-            String artists = (new JSONObject(jsonArtist)).getJSONObject("topartists").getJSONArray("artist").toString();
+        String summary = "";
+        String albums = "";
+        String artists = "";
 
-            ContentValues values = new ContentValues();
-            values.put(Contract.InfoEntry.SUMMARY, summary);
-            values.put(Contract.InfoEntry.ALBUMS,albums);
-            values.put(Contract.InfoEntry.ARTISTS,artists);
-            values.put(Contract.InfoEntry.TAG,query);
-
-            getContentResolver().insert(Contract.InfoEntry.CONTENT_URI, values);
+        //sorry, I'm forced to do that...
+        try {
+            summary = (new JSONObject(jsonInfo)).getJSONObject("tag").getJSONObject("wiki").getString("summary");
         }catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
+        try {
+            albums = (new JSONObject(jsonAlbums)).getJSONObject("topalbums").getJSONArray("album").toString();
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            artists = (new JSONObject(jsonArtist)).getJSONObject("topartists").getJSONArray("artist").toString();
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(Contract.InfoEntry.SUMMARY, summary);
+        values.put(Contract.InfoEntry.ALBUMS,albums);
+        values.put(Contract.InfoEntry.ARTISTS,artists);
+        values.put(Contract.InfoEntry.TAG,query);
+
+        getContentResolver().insert(Contract.InfoEntry.CONTENT_URI, values);
         queryList.remove(query);
     }
 
@@ -420,8 +326,9 @@ public class LastFmService extends IntentService {
                 values.put(Contract.PlaylistEntry.TITLE, track.getString("title"));
                 values.put(Contract.PlaylistEntry.ALBUM, track.getString("album"));
                 values.put(Contract.PlaylistEntry.ARTIST, track.getString("creator"));
-                //TODO get artist image
-                values.put(Contract.PlaylistEntry.LOCATION,track.getString("location"));
+                values.put(Contract.PlaylistEntry.IMAGE, "");//(new JSONObject(getByName(track.getString("creator")))).getJSONObject("artist").getJSONArray("image").toString());
+                values.put(Contract.PlaylistEntry.DURATION,track.getString("duration"));
+                values.put(Contract.PlaylistEntry.LOCATION, track.getString("location"));
                 values.put(Contract.PlaylistEntry.TAG,query);
 
                 valuesVector.add(values);

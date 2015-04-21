@@ -45,6 +45,8 @@ public class DbHelper extends SQLiteOpenHelper {
                 Contract.PlaylistEntry.TITLE + " TEXT NOT NULL, " +
                 Contract.PlaylistEntry.ALBUM + " TEXT NOT NULL, " +
                 Contract.PlaylistEntry.TAG + " TEXT NOT NULL, " +
+                Contract.PlaylistEntry.IMAGE + " TEXT NOT NULL, " +
+                Contract.PlaylistEntry.DURATION + " TEXT NOT NULL, " +
                 Contract.PlaylistEntry.ARTIST+ " TEXT NOT NULL );";
 
         final String SQL_CREATE_ALBUM_TABLE = "CREATE TABLE " + Contract.AlbumEntry.TABLE_NAME + " (" +
