@@ -34,7 +34,7 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
     private int ARTIST_LOADER = 6;
     private int ALBUM_LOADER = 7;
     private int type = 0;
-    private static int transition;
+    private int transition = 0;
     private Drawable toolbarBackground;
     private static int windowWidth = 0;
 
@@ -211,5 +211,13 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
                 mContext.startActivity(i);
             }
         });
+        int header = 2 * windowWidth / 3 - getResources().getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
+//                Log.e("DY",String.valueOf(header));
+        if (transition <= header) {
+            int newAlpha = transition * 255 / header;
+            toolbarBackground.setAlpha(newAlpha);
+        }
+        else
+            toolbarBackground.setAlpha(255);
     }
 }

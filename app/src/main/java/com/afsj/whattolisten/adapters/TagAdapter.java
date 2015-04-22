@@ -281,7 +281,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             name = (TextView) v.findViewById(R.id.name);
             name2 = (TextView) v.findViewById(R.id.name2);
             image = (ImageView) v.findViewById(R.id.image);
-            v.findViewById(R.id.layout).getLayoutParams().height = 2 * windowWidth / 3;
+            v.findViewById(R.id.layout).getLayoutParams().height = 2 * windowWidth / 3 + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, mContext.getResources().getDisplayMetrics());
             v.findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

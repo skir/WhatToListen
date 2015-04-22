@@ -338,7 +338,7 @@ public class LastFmService extends IntentService {
                 ContentValues[] contentValues = new ContentValues[valuesVector.size()];
                 valuesVector.toArray(contentValues);
 
-                getContentResolver().delete(Contract.PlaylistEntry.CONTENT_URI, null, null);
+//                getContentResolver().delete(Contract.PlaylistEntry.CONTENT_URI, null, null);
                 getContentResolver().bulkInsert(Contract.PlaylistEntry.CONTENT_URI,contentValues);
             }
         }catch (JSONException e) {
@@ -378,57 +378,67 @@ public class LastFmService extends IntentService {
     }
 
     private void saveAlbum(String json){
+        String name = "";
+        String artist = "";
+        String mbid = query;
+        String image = "";
+        String track_list = "";
+        String top_tags = "";
+        String wiki = "";
         try{
             JSONObject album = (new JSONObject(json)).getJSONObject("album");
-            String name = album.getString("name");
-            String artist = album.getString("artist");
-            String mbid = query;
-            String image = album.getJSONArray("image").toString();
-            String track_list = album.getJSONObject("tracks").getJSONArray("track").toString();
-            String top_tags = album.getJSONObject("toptags").getJSONArray("tag").toString();
-            String wiki = album.getJSONObject("wiki").toString();
-
-            ContentValues values = new ContentValues();
-            values.put(Contract.AlbumEntry.NAME,name);
-            values.put(Contract.AlbumEntry.ARTIST,artist);
-            values.put(Contract.AlbumEntry.MBID,mbid);
-            values.put(Contract.AlbumEntry.IMAGE,image);
-            values.put(Contract.AlbumEntry.TAGS,top_tags);
-            values.put(Contract.AlbumEntry.TRACK_LIST,track_list);
-            values.put(Contract.AlbumEntry.WIKI,wiki);
-
-            getContentResolver().insert(Contract.AlbumEntry.CONTENT_URI, values);
+            name = album.getString("name");
+            artist = album.getString("artist");
+            image = album.getJSONArray("image").toString();
+            track_list = album.getJSONObject("tracks").getJSONArray("track").toString();
+            top_tags = "";//album.getJSONObject("toptags").getJSONArray("tag").toString();
+            wiki = album.getJSONObject("wiki").toString();
         }catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
+
+        ContentValues values = new ContentValues();
+        values.put(Contract.AlbumEntry.NAME,name);
+        values.put(Contract.AlbumEntry.ARTIST,artist);
+        values.put(Contract.AlbumEntry.MBID,mbid);
+        values.put(Contract.AlbumEntry.IMAGE,image);
+        values.put(Contract.AlbumEntry.TAGS,top_tags);
+        values.put(Contract.AlbumEntry.TRACK_LIST,track_list);
+        values.put(Contract.AlbumEntry.WIKI,wiki);
+
+        getContentResolver().insert(Contract.AlbumEntry.CONTENT_URI, values);
         queryList.remove(query);
     }
 
     private void saveArtist(String json){
+        String name = "";
+        String similar = "";
+        String mbid = query;
+        String image = "";
+        String top_tags = "";
+        String bio = "";
         try{
             JSONObject artist = (new JSONObject(json)).getJSONObject("artist");
-            String name = artist.getString("name");
-            JSONObject similarArtists = new JSONObject(getSimilarArtists(query));
-            String similar = similarArtists.getJSONObject("similarartists").getJSONArray("artist").toString();
-            String mbid = query;
-            String image = artist.getJSONArray("image").toString();
-            String top_tags = artist.getJSONObject("tags").getJSONArray("tag").toString();
-            String bio = artist.getJSONObject("bio").toString();
-
-            ContentValues values = new ContentValues();
-            values.put(Contract.ArtistEntry.NAME,name);
-            values.put(Contract.ArtistEntry.MBID,mbid);
-            values.put(Contract.ArtistEntry.IMAGE,image);
-            values.put(Contract.ArtistEntry.TAGS,top_tags);
-            values.put(Contract.ArtistEntry.SIMILAR,similar);
-            values.put(Contract.ArtistEntry.BIO,bio);
-
-            getContentResolver().insert(Contract.ArtistEntry.CONTENT_URI, values);
+            name = artist.getString("name");
+            similar = (new JSONObject(getSimilarArtists(query))).getJSONObject("similarartists").getJSONArray("artist").toString();
+            image = artist.getJSONArray("image").toString();
+            top_tags = "";//artist.getJSONObject("tags").getJSONArray("tag").toString();
+            bio = artist.getJSONObject("bio").toString();
         }catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
+
+        ContentValues values = new ContentValues();
+        values.put(Contract.ArtistEntry.NAME,name);
+        values.put(Contract.ArtistEntry.MBID,mbid);
+        values.put(Contract.ArtistEntry.IMAGE,image);
+        values.put(Contract.ArtistEntry.TAGS,top_tags);
+        values.put(Contract.ArtistEntry.SIMILAR,similar);
+        values.put(Contract.ArtistEntry.BIO,bio);
+
+        getContentResolver().insert(Contract.ArtistEntry.CONTENT_URI, values);
         queryList.remove(query);
     }
 
