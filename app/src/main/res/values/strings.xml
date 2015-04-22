@@ -12,6 +12,8 @@
     <string name="title_activity_results">ResultsActivity</string>
     <string name="title_activity_tag">Tag</string>
 
+    <string name="sync_account_type">whattolisten.afsj.com</string>
+    <string name="content_authority">com.afsj.whattolisten</string>
     <string name="from_history">from history</string>
     <string name="albums">Top Albums</string>
     <string name="artists">Top Artists</string>

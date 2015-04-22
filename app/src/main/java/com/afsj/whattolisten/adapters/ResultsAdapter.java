@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.afsj.whattolisten.LastFmService;
 import com.afsj.whattolisten.R;
 import com.afsj.whattolisten.data.Contract;
+import com.afsj.whattolisten.sync.SyncAdapter;
 
 /**
  * Created by ilia on 12.04.15.
@@ -61,7 +62,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public int getItemViewType(int position) {
         if(data != null && data.getCount() > 0) {
             data.moveToFirst();
-            if(position == 0 && data.getString(data.getColumnIndex(Contract.ResultsEntry.SEARCH_QUERY)).equals(LastFmService.TOP_TAGS))
+            if(position == 0 && data.getString(data.getColumnIndex(Contract.ResultsEntry.SEARCH_QUERY)).equals(SyncAdapter.TOP_TAGS))
                 return TYPE_TOP_TAGS_HEADER;
             if(position == 0)
                 return TYPE_HEADER;

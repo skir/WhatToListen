@@ -26,6 +26,7 @@ import com.afsj.whattolisten.LastFmService;
 import com.afsj.whattolisten.R;
 import com.afsj.whattolisten.adapters.ResultsAdapter;
 import com.afsj.whattolisten.data.Contract;
+import com.afsj.whattolisten.sync.SyncAdapter;
 import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.balysv.materialmenu.MaterialMenuView;
 import com.mikepenz.iconics.typeface.FontAwesome;
@@ -73,6 +74,8 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
         setUpDrawer();
 
         searchBox.setLogoText(getString(R.string.what_to_listen));
+
+        SyncAdapter.initializeSyncAdapter(this);
 
         getSupportLoaderManager().initLoader(RESULTS_LOADER, null, this);
     }
@@ -195,7 +198,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
                 .addDrawerItems(
                         new SectionDrawerItem().withName(R.string.drawer_item_settings),
                         new SecondaryDrawerItem().withName(R.string.clear_history).withIcon(FontAwesome.Icon.faw_trash_o).withCheckable(false),
-                        new SecondaryDrawerItem().withName(R.string.about).withIcon(FontAwesome.Icon.faw_question).setEnabled(false),
+//                        new SecondaryDrawerItem().withName(R.string.about).withIcon(FontAwesome.Icon.faw_question).setEnabled(false),
                         new DividerDrawerItem()
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -252,10 +255,11 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     }
 
     private void getTopTags(){
-        Intent intentService = new Intent(this,LastFmService.class);
-        intentService.setAction(LastFmService.TOP_TAGS);
-        intentService.putExtra(LastFmService.QUERY,"");
-        startService(intentService);
+//        Intent intentService = new Intent(this,LastFmService.class);
+//        intentService.setAction(LastFmService.TOP_TAGS);
+//        intentService.putExtra(LastFmService.QUERY,"");
+//        startService(intentService);
+        SyncAdapter.syncImmediately(this);
     }
 
     @Override
@@ -273,7 +277,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
                     Contract.ResultsEntry.CONTENT_URI,
                     new String[]{Contract.ResultsEntry.NAME, Contract.ResultsEntry.SEARCH_QUERY},
                     Contract.ResultsEntry.SEARCH_QUERY + " = ? COLLATE NOCASE",
-                    new String[]{LastFmService.TOP_TAGS},null);
+                    new String[]{SyncAdapter.TOP_TAGS},null);
     }
 
     @Override

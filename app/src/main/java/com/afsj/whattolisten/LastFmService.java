@@ -35,7 +35,7 @@ public class LastFmService extends IntentService {
     public static final String QUERY = "query";
     public static final String INFO = "info";
     public static final String RADIO_TUNE = "radio_tune";
-    public static final String TOP_TAGS = "top_tags";
+//    public static final String TOP_TAGS = "top_tags";
     public static final String ALBUM = "album";
     public static final String ARTIST = "artist";
 
@@ -44,7 +44,7 @@ public class LastFmService extends IntentService {
 
     private static final String API_KEY = "77ce255e53b059752de28ac12846e2f6";
     private static final String API_SECRET = "2b3e2099eeb8608316f1ed8e78f311ba";
-    private static final String sk = "e3ce21a934937f14220bf16ff1386e3b";
+    private static final String sk = "be8b675c8a0ff6ed17d61536de6051f4";//"e3ce21a934937f14220bf16ff1386e3b";
 
     private static final String GET = "GET";
     private static final String POST = "POST";
@@ -77,9 +77,9 @@ public class LastFmService extends IntentService {
                     playlistType = intent.getIntExtra(Utils.TYPE,0);
                     getPlaylist(query);
                     break;
-                case TOP_TAGS:
-                    getTopTags();
-                    break;
+//                case TOP_TAGS:
+//                    getTopTags();
+//                    break;
                 case ALBUM:
                     getAlbum(query);    //here query is mbid
                     break;
@@ -186,9 +186,9 @@ public class LastFmService extends IntentService {
         return httpRequest(builtUri,POST);
     }
 
-    private void getTopTags(){
-        saveTopTags(get(null, "tag.getTopTags", null)); //limit is not working here
-    }
+//    private void getTopTags(){
+//        saveTopTags(get(null, "tag.getTopTags", null)); //limit is not working here
+//    }
 
     private void getAlbum(String mbid){
         saveAlbum(getByMBID(mbid, "album.getinfo"));
@@ -348,34 +348,35 @@ public class LastFmService extends IntentService {
         queryList.remove(query);
     }
 
-    private void saveTopTags(String json){
-        try{
-            JSONObject data = new JSONObject(json);
-            JSONArray tags = data.getJSONObject("toptags").getJSONArray("tag");
-            Vector<ContentValues> valuesVector = new Vector<>(tags.length());
-
-            for(int i = 0; i < tags.length(); i++){
-                JSONObject tag = tags.getJSONObject(i);
-                ContentValues values = new ContentValues();
-                values.put(Contract.ResultsEntry.NAME,tag.getString("name"));
-                values.put(Contract.ResultsEntry.URL,tag.getString("url"));
-                values.put(Contract.ResultsEntry.SEARCH_QUERY,TOP_TAGS);
-
-                valuesVector.add(values);
-            }
-
-            if(valuesVector.size() > 0){
-                ContentValues[] contentValues = new ContentValues[valuesVector.size()];
-                valuesVector.toArray(contentValues);
-
-                getContentResolver().bulkInsert(Contract.ResultsEntry.CONTENT_URI,contentValues);
-            }
-        }catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
-            e.printStackTrace();
-        }
-        queryList.remove(query);
-    }
+    /**Moved to SyncAdapter**/
+//    private void saveTopTags(String json){
+//        try{
+//            JSONObject data = new JSONObject(json);
+//            JSONArray tags = data.getJSONObject("toptags").getJSONArray("tag");
+//            Vector<ContentValues> valuesVector = new Vector<>(tags.length());
+//
+//            for(int i = 0; i < tags.length(); i++){
+//                JSONObject tag = tags.getJSONObject(i);
+//                ContentValues values = new ContentValues();
+//                values.put(Contract.ResultsEntry.NAME,tag.getString("name"));
+//                values.put(Contract.ResultsEntry.URL,tag.getString("url"));
+//                values.put(Contract.ResultsEntry.SEARCH_QUERY,TOP_TAGS);
+//
+//                valuesVector.add(values);
+//            }
+//
+//            if(valuesVector.size() > 0){
+//                ContentValues[] contentValues = new ContentValues[valuesVector.size()];
+//                valuesVector.toArray(contentValues);
+//
+//                getContentResolver().bulkInsert(Contract.ResultsEntry.CONTENT_URI,contentValues);
+//            }
+//        }catch (JSONException e) {
+//            Log.e(LOG_TAG, e.getMessage(), e);
+//            e.printStackTrace();
+//        }
+//        queryList.remove(query);
+//    }
 
     private void saveAlbum(String json){
         String name = "";
