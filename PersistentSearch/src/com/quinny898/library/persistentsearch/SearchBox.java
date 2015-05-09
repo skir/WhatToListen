@@ -10,6 +10,7 @@ import com.balysv.materialmenu.MaterialMenuDrawable.IconState;
 
 import android.animation.LayoutTransition;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -42,6 +43,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 public class SearchBox extends RelativeLayout {
 
@@ -248,12 +250,16 @@ public class SearchBox extends RelativeLayout {
 	 */
 	public void startVoiceRecognitionActivity(Activity activity) {
 		if (activity != null) {
-			Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-			intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-					RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-			intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-					context.getString(R.string.speak_now));
-			activity.startActivityForResult(intent, 1234);
+			try {
+				Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+				intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+						RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+				intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+						context.getString(R.string.speak_now));
+				activity.startActivityForResult(intent, 1234);
+			}catch(ActivityNotFoundException e) {
+				Toast.makeText(context,"There are no speech recognition app",Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 	
