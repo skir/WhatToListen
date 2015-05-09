@@ -97,6 +97,7 @@ public class LastFmService extends IntentService {
             URL url = new URL(builtUri.toString());
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod(method);
+            urlConnection.setConnectTimeout(5000);
             urlConnection.connect();
 
             InputStream inputStream = urlConnection.getInputStream();
@@ -116,12 +117,14 @@ public class LastFmService extends IntentService {
                 return "";
 
             json = buffer.toString();
+        } catch (java.net.SocketTimeoutException e){
+            Log.e("SocketTimeoutException",e.toString());
         }catch (MalformedURLException e){
-            Log.e("SERVICE",e.toString());
+            Log.e("MalformedURLException",e.toString());
         }catch (ProtocolException e) {
-            Log.e("SERVICE", e.toString());
+            Log.e("ProtocolException", e.toString());
         }catch (IOException e) {
-            Log.e("SERVICE", e.toString());
+            Log.e("IOException", e.toString());
         }
         return json;
     }

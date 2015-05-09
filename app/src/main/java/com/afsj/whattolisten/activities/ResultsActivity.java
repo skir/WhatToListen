@@ -58,6 +58,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     private boolean isDrawerOpened = false;
     private String tag = "";
     private boolean isResults = false;
+    private int attemptToLoad = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +116,7 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
                 tag = searchTerm;
                 isResults = true;
                 searchBox.showLoading(true);
+                attemptToLoad = 0;
                 getSupportLoaderManager().restartLoader(RESULTS_LOADER, null, ResultsActivity.this);
             }
 
@@ -238,8 +240,9 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
             @Override
             public void onDrawerStateChanged(int newState) {
                 super.onDrawerStateChanged(newState);
-                if(newState == DrawerLayout.STATE_IDLE) {
-                    if(isDrawerOpened) materialMenuView.setState(MaterialMenuDrawable.IconState.ARROW);
+                if (newState == DrawerLayout.STATE_IDLE) {
+                    if (isDrawerOpened)
+                        materialMenuView.setState(MaterialMenuDrawable.IconState.ARROW);
                     else materialMenuView.setState(MaterialMenuDrawable.IconState.BURGER);
                 }
             }
@@ -288,12 +291,15 @@ public class ResultsActivity extends ActionBarActivity implements LoaderManager.
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.e("results", String.valueOf(data.getCount()));
+        searchBox.showLoading(false);
         if(data.getCount() == 0) {
-            if(isResults) search(tag);
-            else getTopTags();
+            attemptToLoad++;
+            if(attemptToLoad < 2) {
+                if (isResults) search(tag);
+                else getTopTags();
+            }
             recyclerView.removeItemDecoration(dividerItemDecoration);
         }else {
-            searchBox.showLoading(false);
             updateHistory();
             recyclerView.addItemDecoration(dividerItemDecoration);
         }

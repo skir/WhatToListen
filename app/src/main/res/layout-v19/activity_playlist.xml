@@ -6,7 +6,7 @@
     tools:context="com.afsj.whattolisten.activities.Tag">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/cardList"
+        android:id="@+id/playlist"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
@@ -15,7 +15,7 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_height="56dp"
+        android:layout_height="80dp"
         android:layout_width="match_parent"
         android:minHeight="?attr/actionBarSize"
         android:background="@color/material_drawer_primary"
@@ -24,6 +24,6 @@
         android:layout_alignParentStart="true"
         app:theme="@style/Toolbar"
         app:popupTheme="@style/Theme.AppCompat.NoActionBar"
-       />
+        android:paddingTop="24dp" />
 
 </RelativeLayout>

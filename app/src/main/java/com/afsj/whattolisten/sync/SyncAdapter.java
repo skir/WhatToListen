@@ -59,6 +59,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         try {
             URL url = new URL(builtUri.toString());
             urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setConnectTimeout(5000);
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
@@ -80,12 +81,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             json = buffer.toString();
             saveTopTags(json);
+        } catch (java.net.SocketTimeoutException e){
+            Log.e("SocketTimeoutException",e.toString());
         }catch (MalformedURLException e){
-            Log.e("SERVICE", e.toString());
+            Log.e("MalformedURLException", e.toString());
         }catch (ProtocolException e) {
-            Log.e("SERVICE", e.toString());
+            Log.e("ProtocolException", e.toString());
         }catch (IOException e) {
-            Log.e("SERVICE", e.toString());
+            Log.e("IOException", e.toString());
         }
     }
 
