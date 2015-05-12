@@ -17,10 +17,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -81,10 +83,10 @@ public class LastFmService extends IntentService {
 //                    getTopTags();
 //                    break;
                 case ALBUM:
-                    getAlbum(query);    //here query is mbid
+                    getAlbum(query,intent.getStringExtra(ARTIST));    //here query is mbid. not really, query is just name (mbid is not always available)
                     break;
                 case ARTIST:
-                    getArtist(query);   //here query is mbid
+                    getArtist(query);   //here query is mbid. not really, query is just name (mbid is not always available)
                     break;
             }
         }
@@ -193,12 +195,12 @@ public class LastFmService extends IntentService {
 //        saveTopTags(get(null, "tag.getTopTags", null)); //limit is not working here
 //    }
 
-    private void getAlbum(String mbid){
-        saveAlbum(getByMBID(mbid, "album.getinfo"));
+    private void getAlbum(String name,String artist){
+        saveAlbum(getAlbumByName(name, artist));
     }
 
-    private void getArtist(String mbid){
-        saveArtist(getByMBID(mbid, "artist.getinfo"));
+    private void getArtist(String name){
+        saveArtist(getArtistByName(name));//, "artist.getinfo"));
     }
 
     private String get(String tag, String method, String limit){
@@ -229,25 +231,58 @@ public class LastFmService extends IntentService {
         return httpRequest(builtUri,GET);
     }
 
-    private String getByName(String name){
+    private String getArtistByName(String name){
 
+        String nameEncoded = name;
+        try{
+            nameEncoded = URLEncoder.encode(name,"UTF-8");
+        }catch (UnsupportedEncodingException e){
+            Log.e("UnsupportedEncoding",e.toString());
+        }
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                .encodedQuery("artist=" + nameEncoded)
                 .appendQueryParameter("method", "artist.getinfo")
                 .appendQueryParameter("api_key", API_KEY)
                 .appendQueryParameter("format", "json")
-                .appendQueryParameter("artist",name)
+//                .appendQueryParameter("artist",nameEcoded)
                 .build();
-
         return httpRequest(builtUri,GET);
     }
 
-    private String getSimilarArtists(String mbid){
+    private String getAlbumByName(String name,String artist){
 
+        String nameEncoded = name;
+        String artistEncoded = artist;
+        try{
+            nameEncoded = URLEncoder.encode(name,"UTF-8");
+            artistEncoded = URLEncoder.encode(artist,"UTF-8");
+        }catch (UnsupportedEncodingException e){
+            Log.e("UnsupportedEncoding",e.toString());
+        }
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                .encodedQuery("artist=" + artistEncoded + "&" + "album=" + nameEncoded)
+                .appendQueryParameter("method", "album.getinfo")
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter("format", "json")
+                .build();
+        Log.e("url",builtUri.toString());
+        return httpRequest(builtUri,GET);
+    }
+
+    private String getSimilarArtists(String name){
+
+        String nameEcoded = name;
+        try{
+            nameEcoded = URLEncoder.encode(name,"UTF-8");
+        }catch (UnsupportedEncodingException e){
+            Log.e("UnsupportedEncoding", e.toString());
+        }
+        Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                .encodedQuery("artist=" + nameEcoded)
                 .appendQueryParameter("method", "artist.getsimilar")
                 .appendQueryParameter("api_key", API_KEY)
                 .appendQueryParameter("format", "json")
-                .appendQueryParameter("mbid",mbid)
+//                .appendQueryParameter("mbid",mbid)
                 .appendQueryParameter("limit","5")
                 .build();
 

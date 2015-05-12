@@ -74,18 +74,22 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     JSONObject item = data.getJSONObject(position);
                     ((AlbumViewHolder) holder).artist.setText(item.getJSONObject("artist").getString("name"));
                     ((AlbumViewHolder) holder).album.setText(item.getString("name"));
+                    ((AlbumViewHolder) holder).mbid = item.getString("mbid");
+                    String imagePath = item.getJSONArray("image").getJSONObject(1).getString("#text");
+                    if(!imagePath.equals(""))
                     Picasso.with(mContext)
-                            .load(item.getJSONArray("image").getJSONObject(1).getString("#text"))
+                            .load(imagePath)
                             .into(((AlbumViewHolder) holder).image);
 
-                    ((AlbumViewHolder) holder).mbid = item.getString("mbid");
                 }else{
                     JSONObject item = data.getJSONObject(position);
                     ((ArtistViewHolder) holder).artist.setText(item.getString("name"));
-                    Picasso.with(mContext)
-                            .load(item.getJSONArray("image").getJSONObject(1).getString("#text"))
-                            .into(((ArtistViewHolder) holder).image);
                     ((ArtistViewHolder) holder).mbid = item.getString("mbid");
+                    String imagePath = item.getJSONArray("image").getJSONObject(1).getString("#text");
+                    if(!imagePath.equals(""))
+                    Picasso.with(mContext)
+                            .load(imagePath)
+                            .into(((ArtistViewHolder) holder).image);
                 }
             }catch (JSONException e){
                 Log.e("JSONException",e.toString());
@@ -116,8 +120,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-            if(!mbid.equals(""))
-                albumItemClick.albumItemClick(mbid);
+//            if(!mbid.equals(""))
+                albumItemClick.albumItemClick(album.getText().toString(),artist.getText().toString());
         }
     }
 
@@ -134,16 +138,16 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-            if(!mbid.equals(""))
-            artistItemClick.artistItemClick(mbid);
+//            if(!mbid.equals(""))
+            artistItemClick.artistItemClick(artist.getText().toString());
         }
     }
 
     public interface AlbumItemClick{
-        public void albumItemClick(String mbid);
+        public void albumItemClick(String name,String artist);
     }
 
     public interface ArtistItemClick{
-        public void artistItemClick(String mbid);
+        public void artistItemClick(String name);
     }
 }

@@ -70,7 +70,9 @@ public class TrackListAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public int getItemCount() {
+        if(data != null)
         return data.length();
+        return 0;
     }
 
     public static class TrackViewHolder extends RecyclerView.ViewHolder{

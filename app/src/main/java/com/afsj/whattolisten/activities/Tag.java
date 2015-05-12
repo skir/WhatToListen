@@ -77,13 +77,22 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
         adapterInfo = new TagAdapter(this,null,windowWidth,tag,type);
         adapterInfo.setTagCardItemClick(new TagAdapter.TagCardItemClick() {
             @Override
-            public void tagCardItemClick(String mbid, int type) {
+            public void tagCardItemClick(String name, int type) {
                 Intent i = new Intent(mContext, Tag.class);
-                i.putExtra(LastFmService.QUERY, mbid);
+                i.putExtra(LastFmService.QUERY, name);
                 if (type == TagAdapter.TYPE_ALBUMS)
                     i.putExtra(Utils.TYPE, Utils.TYPE_ALBUM);
                 else
                     i.putExtra(Utils.TYPE, Utils.TYPE_ARTIST);
+                mContext.startActivity(i);
+            }
+
+            @Override
+            public void tagCardAlbumItemClick(String name,String artist){
+                Intent i = new Intent(mContext, Tag.class);
+                i.putExtra(LastFmService.QUERY, name);
+                i.putExtra(LastFmService.ARTIST,artist);
+                i.putExtra(Utils.TYPE, Utils.TYPE_ALBUM);
                 mContext.startActivity(i);
             }
         });
@@ -136,8 +145,10 @@ public class Tag extends ActionBarActivity implements LoaderManager.LoaderCallba
             intentService.setAction(LastFmService.INFO);
         if(type == Utils.TYPE_ARTIST)
             intentService.setAction(LastFmService.ARTIST);
-        if(type == Utils.TYPE_ALBUM)
+        if(type == Utils.TYPE_ALBUM) {
             intentService.setAction(LastFmService.ALBUM);
+            intentService.putExtra(LastFmService.ARTIST,getIntent().getStringExtra(LastFmService.ARTIST));
+        }
 
         intentService.putExtra(LastFmService.QUERY,tagName);
         startService(intentService);

@@ -132,8 +132,10 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     try {
                         JSONArray array = new JSONArray(info.getString(info.getColumnIndex(Contract.InfoEntry.ARTISTS)));
                         JSONObject item = array.getJSONObject(0);
+                        String imagePath = item.getJSONArray("image").getJSONObject(4).getString("#text");
+                        if(!imagePath.equals(""))
                         Picasso.with(mContext)
-                                .load(item.getJSONArray("image").getJSONObject(4).getString("#text"))
+                                .load(imagePath)
                                 .transform(new ImageTransformation())
                                 .into(((InfoViewHolder) holder).image);
                     }catch (JSONException e){
@@ -144,8 +146,8 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     CardAdapter adapterAlbum = new CardAdapter(true,mContext,info.getString(info.getColumnIndex(Contract.InfoEntry.ALBUMS)));
                     adapterAlbum.setAlbumItemClick(new CardAdapter.AlbumItemClick() {
                         @Override
-                        public void albumItemClick(String mbid) {
-                            tagCardItemClick.tagCardItemClick(mbid, TYPE_ALBUMS);
+                        public void albumItemClick(String name,String artist) {
+                            tagCardItemClick.tagCardAlbumItemClick(name, artist);
                         }
                     });
                     ((CardViewHolder) holder).recyclerView.setAdapter(adapterAlbum);
@@ -176,8 +178,10 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
                     try {
                         JSONArray array = new JSONArray(info.getString(info.getColumnIndex(Contract.ArtistEntry.IMAGE)));
                         JSONObject item = array.getJSONObject(2);
+                        String imagePath = item.getString("#text");
+                        if(!imagePath.equals(""))
                         Picasso.with(mContext)
-                                .load(item.getString("#text"))
+                                .load(imagePath)
                                 .into(((HeaderAViewHolder) holder).image);
                     }catch (JSONException e){
                         Log.e("JSONException",e.toString());
@@ -340,6 +344,7 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     }
 
     public interface TagCardItemClick{
-        void tagCardItemClick(String mbid, int type);
+        void tagCardItemClick(String name, int type);
+        void tagCardAlbumItemClick(String name,String artist);
     }
 }
