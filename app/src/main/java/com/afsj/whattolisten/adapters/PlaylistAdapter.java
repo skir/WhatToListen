@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afsj.whattolisten.R;
+import com.afsj.whattolisten.Utils;
 import com.afsj.whattolisten.data.Contract;
 
 /**
@@ -24,10 +25,14 @@ public class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private static ListItemClick listItemClick;
     private final int TYPE_ITEM = 1;
     private final int TYPE_HEADER = 2;
+    private int type = 0;
+    private boolean twoPane = false;
 
-    public PlaylistAdapter(Context context,Cursor data){
+    public PlaylistAdapter(Context context,Cursor data,int type,boolean twoPane){
         this.data = data;
         mContext = context;
+        this.type = type;
+        this.twoPane = twoPane;
         mDataSetObserver = new NotifyingDataSetObserver();
         if (data != null)
             data.registerDataSetObserver(mDataSetObserver);
@@ -43,7 +48,10 @@ public class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             case TYPE_ITEM:
                 return new TrackViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_item, parent, false));
             case TYPE_HEADER:
-                return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.header, parent, false));
+                if((twoPane && (type == Utils.TYPE_ALBUM || type == Utils.TYPE_ARTIST)) || !twoPane )
+                    return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.header, parent, false));
+                else
+                    return new EmptyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.header_small, parent, false));
         }
         throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
     }

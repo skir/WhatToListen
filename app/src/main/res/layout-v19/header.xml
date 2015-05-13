@@ -2,6 +2,7 @@
 <View xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="80dp"
-    android:background="@drawable/list_header">
+    android:background="@drawable/list_header"
+    android:id="@+id/header">
 
 </View>

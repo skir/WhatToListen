@@ -28,7 +28,6 @@
 
         <activity
             android:name=".activities.Tag"
-            android:label="@string/title_activity_tag"
             android:parentActivityName=".activities.ResultsActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -37,7 +36,6 @@
 
         <activity
             android:name=".activities.PlaylistActivity"
-            android:label="@string/title_activity_playlist"
             android:parentActivityName=".activities.Tag" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -77,15 +75,6 @@
             android:authorities="com.afsj.whattolisten"
             android:exported="false"
             android:syncable="true" />
-
-        <!-- <activity -->
-        <!-- android:name=".activities.ResultsActivity" -->
-        <!-- android:label="@string/title_activity_results" -->
-        <!-- android:parentActivityName=".activities.MainActivity" > -->
-        <!-- <meta-data -->
-        <!-- android:name="android.support.PARENT_ACTIVITY" -->
-        <!-- android:value=".activities.MainActivity" /> -->
-        <!-- </activity> -->
 
     </application>
 

@@ -47,13 +47,15 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     private final int TYPE_TAGS = 5;
     private final int TYPE_TRACK_LIST = 6;
     private int type;
+    private static boolean twoPane = false;
 
-    public TagAdapter(Context context,Cursor info,int windowWidth,String tag,int type){
+    public TagAdapter(Context context,Cursor info,int windowWidth,String tag,int type,boolean twoPane){
         this.info = info;
         mContext = context;
         this.windowWidth = windowWidth;
         this.tag = tag;
         this.type = type;
+        this.twoPane = twoPane;
         mDataSetObserver = new NotifyingDataSetObserver();
         if (info != null) {
 //            this.data.moveToFirst();
@@ -267,12 +269,15 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             info.setMovementMethod(LinkMovementMethod.getInstance());
             image = (ImageView) v.findViewById(R.id.image);
             v.findViewById(R.id.layout).getLayoutParams().height = 2 * windowWidth / 3 + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, mContext.getResources().getDisplayMetrics());
-            v.findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    playClick.playClick();
-                }
-            });
+            if(!twoPane)
+                v.findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        playClick.playClick();
+                    }
+                });
+            else
+                v.findViewById(R.id.play).setVisibility(View.INVISIBLE);
         }
     }
 
@@ -286,12 +291,15 @@ public class TagAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
             name2 = (TextView) v.findViewById(R.id.name2);
             image = (ImageView) v.findViewById(R.id.image);
             v.findViewById(R.id.layout).getLayoutParams().height = 2 * windowWidth / 3 + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, mContext.getResources().getDisplayMetrics());
-            v.findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
+            if(!twoPane)
+                v.findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     playClick.playClick();
-                }
-            });
+                                }
+                });
+            else
+                v.findViewById(R.id.play).setVisibility(View.INVISIBLE);
         }
     }
 
